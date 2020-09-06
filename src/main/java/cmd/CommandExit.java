@@ -1,7 +1,7 @@
 package cmd;
 
-import Control.TableController;
-import ServSoft.ServerController;
+import consolehandler.TableController;
+import server.ServerController;
 
 import java.io.File;
 import java.io.IOException;

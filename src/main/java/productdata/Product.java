@@ -1,6 +1,5 @@
 package productdata;
-import Control.TableController;
-import Exceptions.NegativePrice;
+import exceptions.NegativePrice;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;

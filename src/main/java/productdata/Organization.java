@@ -1,6 +1,6 @@
 package productdata;
-import Exceptions.NotUniqueFullName;
-import Exceptions.TooLargeFullName;
+import exceptions.NotUniqueFullName;
+import exceptions.TooLargeFullName;
 
 import java.io.Serializable;
 

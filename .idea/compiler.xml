@@ -8,6 +8,8 @@
       <module name="Lab6.test" target="1.8" />
       <module name="Labs.main" target="1.8" />
       <module name="Labs.test" target="1.8" />
+      <module name="Server.main" target="1.8" />
+      <module name="Server.test" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

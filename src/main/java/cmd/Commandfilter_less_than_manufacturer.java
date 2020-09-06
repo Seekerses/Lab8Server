@@ -1,13 +1,9 @@
 package cmd;
 
-import Control.TableController;
-import productdata.Product;
+import consolehandler.TableController;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Iterator;
-import java.util.Map;
 
 /**
  * get elements which have lower manufacturer id than one's given

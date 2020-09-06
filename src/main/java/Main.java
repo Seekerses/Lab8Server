@@ -1,8 +1,7 @@
-import Control.*;
-import ServSoft.ServerController;
+import consolehandler.*;
+import server.ServerController;
 
 import java.io.*;
-import java.util.Arrays;
 
 public class Main {
 
@@ -27,7 +26,7 @@ public class Main {
                 Initializer.init(prodTable, null);
             }
         }
-        ServerController.connect(1337);
+        ServerController.connect();
         ServerController.start();
         System.out.println("Enter Command or Help to display a list of commands:");
     }

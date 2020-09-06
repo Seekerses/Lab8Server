@@ -1,5 +1,5 @@
 package productdata;
-import Exceptions.InvalidYCoordinate;
+import exceptions.InvalidYCoordinate;
 
 import java.io.Serializable;
 

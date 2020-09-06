@@ -1,9 +1,5 @@
 package cmd;
-import Control.TableController;
-import Control.TableManager;
-
-import java.io.FileNotFoundException;
-import java.util.Set;
+import consolehandler.TableController;
 
 /**
  * removes element with given key

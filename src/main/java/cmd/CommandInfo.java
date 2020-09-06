@@ -1,8 +1,5 @@
 package cmd;
-import Control.TableController;
-import Control.TableManager;
-
-import java.util.Hashtable;
+import consolehandler.TableController;
 
 /**
  * gives info about date of collection's creation, collection's size and collection's type

@@ -1,11 +1,8 @@
 package cmd;
-import Control.TableController;
-import Control.TableManager;
+import consolehandler.TableController;
 import productdata.Product;
 
 import java.util.Comparator;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.NoSuchElementException;
 
 /**

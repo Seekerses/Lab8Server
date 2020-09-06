@@ -1,6 +1,6 @@
 package cmd;
 
-import Control.ScriptParser;
+import consolehandler.ScriptParser;
 
 import java.io.IOException;
 import java.util.ArrayList;

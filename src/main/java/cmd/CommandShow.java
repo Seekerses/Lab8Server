@@ -1,12 +1,7 @@
 package cmd;
-import Control.TableController;
-import Control.TableManager;
-import cliser.NameComparator;
-import cliser.PlaceComparator;
-import cliser.Reply;
-
-import java.util.Comparator;
-import java.util.Hashtable;
+import consolehandler.TableController;
+import clientserverdata.PlaceComparator;
+import clientserverdata.NameComparator;
 
 /**
  * show all elements in String format
@@ -41,7 +36,7 @@ public class CommandShow implements Command {
                 return ("Collection is empty!");
             } else {
                 ShowInfo showInfo = new ShowInfo();
-                TableController.getCurrentTable().getProducts().stream().sorted(new NameComparator()).sorted(new PlaceComparator()).forEach(y -> showInfo.addInfo(y.toString()));
+                TableController.getCurrentTable().getProducts().stream().sorted(new PlaceComparator()).forEach(y -> showInfo.addInfo(y.toString()));
                 return showInfo.getInfo();
             }
         }

@@ -1,8 +1,5 @@
 package cmd;
-import Control.TableController;
-import Control.TableManager;
-
-import java.util.Hashtable;
+import consolehandler.TableController;
 
 /**
  * remove all elements from the collection

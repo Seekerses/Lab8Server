@@ -1,9 +1,8 @@
 package cmd;
-import Control.TableController;
+import consolehandler.TableController;
 import productdata.Product;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * delete all elements with lower id than one's given

@@ -1,5 +1,5 @@
 package cmd;
-import Control.TableController;
+import consolehandler.TableController;
 
 import java.io.File;
 import java.io.FileNotFoundException;

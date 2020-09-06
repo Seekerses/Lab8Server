@@ -1,10 +1,7 @@
 package cmd;
-import Control.TableController;
+import consolehandler.TableController;
 import productdata.Product;
-import productdata.ReaderProductBuilder;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.*;
 
 /**

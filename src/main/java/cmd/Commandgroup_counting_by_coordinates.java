@@ -1,9 +1,8 @@
 package cmd;
 
-import Control.TableController;
+import consolehandler.TableController;
 import productdata.Product;
 
-import java.io.IOException;
 import java.util.*;
 
 /**
