@@ -10,7 +10,8 @@ class Receiver{
 
         ByteBuffer buf = ByteBuffer.allocate(1024); //buffer for coming bytes
         byte[] clear = new byte[1024]; //std buffer for "everything OK" reply
-        byte[] done = new byte[1024]; //std buffer for exchanging done reply
+        byte[] done; //std buffer for exchanging done reply
+        done = new byte[1024];
         byte[] bad = new byte[1024]; //std buffer for "something went wrong" reply
         clear[0] = 111; // Ok signal
         bad[0] = 22; // Error signal

@@ -1,10 +1,11 @@
 package cmd;
 
-import consolehandler.Initializer;
 import consolehandler.TableController;
 import productdata.Product;
+import productdata.ReaderProductBuilder;
 
-import java.util.Arrays;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -14,7 +15,7 @@ import java.util.Map;
  *
  */
 
-public class CommandUpdate implements Command{
+public class CommandUpdate implements Command, Preparable{
 
     private static final long serialVersionUID = 1337000016L;
 
@@ -28,23 +29,31 @@ public class CommandUpdate implements Command{
 
     @Override
     public String execute(String[] args) {
-        try {
-            int counter = 0;
-            Iterator<Map.Entry<String, Product>> it = TableController.getCurrentTable().getSet().iterator();
-            int i = Integer.parseInt(args[0]);
-            while (it.hasNext()) {
-                Map.Entry<String, Product> map = it.next();
-                if (map.getValue().getId() == i) {
-                    counter++;
-                    product = Initializer.build(args);
-                    TableController.getCurrentTable().replace(map.getKey(), product);
+
+        if (product == null){
+            prepare(args);
+        }
+        else {
+            try {
+                if (args == null || args[0] == null) {
+                    return ("Please enter ID");
                 }
+                int counter = 0;
+                Iterator<Map.Entry<String, Product>> it = TableController.getCurrentTable().getSet().iterator();
+                int i = Integer.parseInt(args[0]);
+                while (it.hasNext()) {
+                    Map.Entry<String, Product> map = it.next();
+                    if (map.getValue().getId() == i) {
+                        counter++;
+                        TableController.getCurrentTable().replace(map.getKey(), product);
+                    }
+                }
+                if (counter == 0) {
+                    return ("There is no elements with that id.");
+                }
+            } catch (NumberFormatException e) {
+                return ("Argument must be a number");
             }
-            if (counter == 0) {
-                return ("There is no elements with that id.");
-            }
-        } catch (NumberFormatException e) {
-            return ("Argument must be a number");
         }
         return "Element updated";
     }
@@ -60,4 +69,9 @@ public class CommandUpdate implements Command{
         return "update_id";
     }
 
+    @Override
+    public void prepare(String[] args) {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        this.product = ReaderProductBuilder.buildProduct(reader);
+    }
 }

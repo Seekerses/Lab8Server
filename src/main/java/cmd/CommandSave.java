@@ -28,20 +28,19 @@ public class CommandSave implements Command {
                         }
                     }
                     catch (IOException e){
-                        System.out.println("Illegal access, get the right access or try to save with another path.");
-                        return null;
+                        return ("Illegal access, get the right access or try to save with another path.");
                     }
                 }
                 if (saveFile.canWrite()) {
                     TableController.getCurrentTable().save(new File(args[0]));
-                    System.out.println("Collection has been saved");
+                    return ("Collection has been saved");
                 }
                 else {
-                    System.out.println("Can`t write in this file, get the right access...");
+                    return ("Can`t write in this file, get the right access...");
                 }
             }
             catch (FileNotFoundException e){
-                System.out.println("File not found. Try another path.");
+                return ("File not found. Try another path.");
             }
         }
         else{
@@ -52,28 +51,25 @@ public class CommandSave implements Command {
                         if ((saved.createNewFile())) {
                             System.out.println("Save file created");
                         } else {
-                            System.out.println("Can`t create save file.");
-                            return null;
+                            return ("Can`t create save file.");
                         }
                     }
                     catch (IOException e){
-                        System.out.println("Illegal Access, try to save with another path.");
-                        return null;
+                        return ("Illegal Access, try to save with another path.");
                     }
                 }
                 if (saved.canWrite()) {
                     TableController.getCurrentTable().save(new File("saved.csv"));
-                    System.out.println("Collection has been saved");
+                    return ("Collection has been saved");
                 }
                 else{
-                    System.out.println("Can`t write in default file, get the right access...");
+                    return ("Can`t write in default file, get the right access...");
                 }
             }
             catch (FileNotFoundException e){
-                System.out.println("Default save file not found. Try to specify path.");
+                return ("Default save file not found. Try to specify path.");
             }
         }
-        return null;
     }
 
     /**
