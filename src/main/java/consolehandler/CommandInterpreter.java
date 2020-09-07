@@ -27,6 +27,7 @@ public class CommandInterpreter implements Interpreter {
      */
     @Override
     public void handle(String[] args) throws IOException {
+        if(args.length>0)
             if (cmdList.getCommands().containsKey(args[0])) {
                 CommandController.getCommandHistory().addCommand(cmdList.getCommands().get(args[0]).toString());
                 try {
