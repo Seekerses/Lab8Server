@@ -9,7 +9,7 @@ class Receiver{
     static byte[] getReply() {
 
         ByteBuffer buf = ByteBuffer.allocate(1024); //buffer for coming bytes
-        byte[] clear = new byte[1024]; //std buffer for "everything OK" reply
+        byte[] clear = new byte[1024]; //std buffer for "everything OK" and exchanging done reply
         byte[] bad = new byte[1024]; //std buffer for "something went wrong" reply
         clear[0] = 111; // Ok signal
         bad[0] = 22; // Error signal
@@ -19,20 +19,20 @@ class Receiver{
             while (true) {
 
                 ServerController.getChannel().receive(buf);
-                if (Arrays.equals(buf.array(), new byte[1024])) {
-                    break;
-                }
-                if (PacketUtils.checkHash(buf.array())) {
-                    ServerController.getChannel().send(ByteBuffer.wrap(clear),ServerController.getRemoteAddr());
-                    result = PacketUtils.merge(result,Arrays.copyOfRange(buf.array(),0,1012));
-                }
-                else {
-                    ServerController.getChannel().send(ByteBuffer.wrap(bad),ServerController.getRemoteAddr());
-                }
-                buf.clear();
+                    if (Arrays.equals(buf.array(), clear)) {
+                        System.out.println("done");
+                        return result;
+                    }
+                    if (PacketUtils.checkHash(buf.array())) {
+                        ServerController.getChannel().send(ByteBuffer.wrap(clear), ServerController.getRemoteAddr());
+                        result = PacketUtils.merge(result, Arrays.copyOfRange(buf.array(), 0, 1012));
+                    } else {
+                        ServerController.getChannel().send(ByteBuffer.wrap(bad), ServerController.getRemoteAddr());
+                    }
+                    buf.clear();
             }
-            return result;
         } catch(IOException e){
+            e.printStackTrace();
             System.out.println("Error in IO");
         }
         return null;

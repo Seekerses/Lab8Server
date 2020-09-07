@@ -7,6 +7,10 @@ import java.util.Arrays;
 class Sender {
 
         static void send(byte[] data){
+            System.out.println(Arrays.toString(data));
+            byte[] clear = new byte[1024]; //std buffer for "everything OK" and exchanging done reply
+            clear[0] = 111;
+
             try {
                 ByteBuffer buffer = ByteBuffer.allocate(1024);
                 ByteBuffer handle = ByteBuffer.allocate(1024);
@@ -34,7 +38,7 @@ class Sender {
                     }
                     buffer.clear();
                     handle.clear();
-                    buffer.put(new byte[1024]);
+                    buffer.put(clear);
                     buffer.flip();
                     ServerController.getChannel().send(buffer,ServerController.getRemoteAddr());
                     buffer.clear();

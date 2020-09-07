@@ -8,26 +8,25 @@ import cmd.CommandHistory;
 
 import java.io.IOException;
 import java.net.*;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class ServerController {
 
     private static InetSocketAddress iAddr;
     private static int port = 1337;
-    private static boolean running = false;
-    private static boolean connected = false;
     private static final CommandHistory serverHistory = new CommandHistory();
     private static DatagramChannel channel;
     private static SocketAddress remoteAddr;
-    private static ByteBuffer buf;
 
-    private static void handleRequest(byte[] data){
+    private static void handleRequest(byte[] data) {
         Request request = Serializer.deserialize(data);
         assert request != null;
         Reply reply = null;
-        System.out.println("\n Accepted a request from client: " + request.getCommand());
+        System.out.println("Incoming request is: " + request.getCommand());
         try {
             if (request.getCommand() instanceof CommandHistory){
                 reply = new Reply(null,
@@ -44,15 +43,10 @@ public class ServerController {
             System.out.print("IO exception");
         }
         assert reply != null;
-        if(reply.getAnswer().equals("disconnect")){
-            connected = false;
-            remoteAddr=null;
-        }else {
-            byte[] serReply = Serializer.serialize(reply);
-            assert serReply != null;
-            System.out.println("Sending a reply...");
-            Sender.send(serReply);
-        }
+        byte[] serReply = Serializer.serialize(reply);
+        assert serReply != null;
+        System.out.println("Sending a reply...");
+        Sender.send(serReply);
     }
 
     private static void setPort(){
@@ -82,36 +76,37 @@ public class ServerController {
         ServerController.remoteAddr = remoteAddr;
     }
 
-    private static boolean checkConnection(){
-        byte[] arr = buf.array();
+    private static boolean checkConnection(ByteBuffer buffer){
+        byte[] arr = buffer.array();
         return (arr[0] == 1) && (arr[1023] == 1);
     }
 
     public static void start() throws IOException {
-        running = true;
         System.out.println("Server awaiting connections...\n");
 
         CommandController cmd = new CommandController();
         System.out.println("Enter Command or Help to display a list of commands:");
         System.out.print(">");
-        while (running){
+        while (true){
             cmd.start(new CommandInterpreter());
-            if(!connected) {
-                buf = ByteBuffer.allocate(1024);
-                SocketAddress clientAddr = channel.receive(buf);
-                if (checkConnection()) {
-                    setRemoteAddr(clientAddr);
-                    connected = true;
-                    System.out.println("Connected to client");
-                    buf.clear();
-                }
-            }else {
+            ByteBuffer buf = ByteBuffer.allocate(1024);
+            SocketAddress clientAddr = channel.receive(buf);
+            if (checkConnection(buf)) {
+                setRemoteAddr(clientAddr);
+                System.out.println("Incoming request from:" + clientAddr);
+                buf.clear();
+                channel.connect(clientAddr);
+                if (channel.isConnected()) System.out.println("connected");
                 byte[] data = Receiver.getReply();
-                assert data != null;
-                if (data.length > 0) {
-                    handleRequest(data);
+                if (data != null) {
+                    if (data.length > 0) {
+                        handleRequest(data);
+                    }
                 }
-                connected = false;
+                else {
+                    System.out.println("Incoming request is null...");
+                }
+                channel.disconnect();
             }
         }
     }
@@ -122,7 +117,7 @@ public class ServerController {
 
     public static void connect(){
         try {
-            iAddr = new InetSocketAddress(port);
+            iAddr = new InetSocketAddress("localhost",port);
             channel = DatagramChannel.open();
             channel.configureBlocking(false);
             channel.bind(iAddr);

@@ -3,6 +3,7 @@ package server;
 import clientserverdata.Request;
 
 import java.io.*;
+import java.util.Arrays;
 
 class Serializer {
 
@@ -28,11 +29,6 @@ class Serializer {
                 ObjectInput ois = new ObjectInputStream(new ByteArrayInputStream(data));
                 return (Request) ois.readObject();
             }
-            assert false;
-            ObjectInput objectInputStream = new ObjectInputStream(new ByteArrayInputStream(data));
-            Request request = (Request) objectInputStream.readObject();
-            objectInputStream.close();
-            return request;
         }
         catch (IOException ioException) {
             System.out.println("Oh no, some IO exception occurs.");
