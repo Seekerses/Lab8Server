@@ -45,7 +45,7 @@ public class ServerController {
         assert reply != null;
         byte[] serReply = Serializer.serialize(reply);
         assert serReply != null;
-        System.out.println("Sending a reply...");
+        System.out.println("Sending a reply...\n");
         Sender.send(serReply);
     }
 
@@ -96,7 +96,6 @@ public class ServerController {
                 System.out.println("Incoming request from:" + clientAddr);
                 buf.clear();
                 channel.connect(clientAddr);
-                if (channel.isConnected()) System.out.println("connected");
                 byte[] data = Receiver.getReply();
                 if (data != null) {
                     if (data.length > 0) {

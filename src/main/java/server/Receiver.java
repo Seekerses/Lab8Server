@@ -9,18 +9,19 @@ class Receiver{
     static byte[] getReply() {
 
         ByteBuffer buf = ByteBuffer.allocate(1024); //buffer for coming bytes
-        byte[] clear = new byte[1024]; //std buffer for "everything OK" and exchanging done reply
+        byte[] clear = new byte[1024]; //std buffer for "everything OK" reply
+        byte[] done = new byte[1024]; //std buffer for exchanging done reply
         byte[] bad = new byte[1024]; //std buffer for "something went wrong" reply
         clear[0] = 111; // Ok signal
         bad[0] = 22; // Error signal
+        done[0] = 33;
         byte[] result = new byte[0];
 
         try {
             while (true) {
 
                 ServerController.getChannel().receive(buf);
-                    if (Arrays.equals(buf.array(), clear)) {
-                        System.out.println("done");
+                    if (Arrays.equals(buf.array(), done)) {
                         return result;
                     }
                     if (PacketUtils.checkHash(buf.array())) {
