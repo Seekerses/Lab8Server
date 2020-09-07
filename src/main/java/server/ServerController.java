@@ -116,6 +116,7 @@ public class ServerController {
 
     public static void connect(){
         try {
+            setPort();
             iAddr = new InetSocketAddress("localhost",port);
             channel = DatagramChannel.open();
             channel.configureBlocking(false);
