@@ -28,7 +28,6 @@ public class CommandUpdate implements Command{
 
     @Override
     public String execute(String[] args) {
-        System.out.println(Arrays.toString(args));
         try {
             int counter = 0;
             Iterator<Map.Entry<String, Product>> it = TableController.getCurrentTable().getSet().iterator();

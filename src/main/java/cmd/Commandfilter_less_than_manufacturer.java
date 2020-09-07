@@ -13,7 +13,7 @@ import java.util.Comparator;
 
 public class Commandfilter_less_than_manufacturer implements Command {
     /**
-     * counter will control a situation when all elements have higher manufacturer id than one's given
+     * counter will control a situation when all elements have higher manufacturer name than one's given
      */
     private static final long serialVersionUID = 1337000006L;
 
@@ -33,9 +33,9 @@ public class Commandfilter_less_than_manufacturer implements Command {
     public String execute(String[] args) {
         try {
             ShowInfo showInfo = new ShowInfo();
-            TableController.getCurrentTable().getProducts().stream().filter(p -> p.getManufacturer().getFullName().compareTo(Arrays.toString(args)) == 0)
+            TableController.getCurrentTable().getProducts().stream().filter(p -> p.getManufacturer().getFullName().length() < args[0].length())
                     .sorted(Comparator.comparing(p -> p.getManufacturer().getFullName()))
-                    .forEach(x -> showInfo.addInfo(x.out()));
+                    .forEach(x -> showInfo.addInfo(x.toString()));
 
             if (showInfo.getInfo().equals("")) {
                 return ("No such elements.");
