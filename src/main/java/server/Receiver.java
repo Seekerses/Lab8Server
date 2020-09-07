@@ -17,6 +17,7 @@ class Receiver{
         bad[0] = 22; // Error signal
         done[0] = 33;
         byte[] result = new byte[0];
+        byte[] assist = new byte[1024];
 
         try {
             while (true) {
@@ -27,7 +28,10 @@ class Receiver{
                     }
                     if (PacketUtils.checkHash(buf.array())) {
                         ServerController.getChannel().send(ByteBuffer.wrap(clear), ServerController.getRemoteAddr());
-                        result = PacketUtils.merge(result, Arrays.copyOfRange(buf.array(), 0, 1012));
+                        if (!Arrays.equals(assist,buf.array())) {
+                            result = PacketUtils.merge(result, Arrays.copyOfRange(buf.array(), 0, 1012));
+                            assist = Arrays.copyOf(buf.array(),1024);
+                        }
                     } else {
                         ServerController.getChannel().send(ByteBuffer.wrap(bad), ServerController.getRemoteAddr());
                     }

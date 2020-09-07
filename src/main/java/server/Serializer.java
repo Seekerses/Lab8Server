@@ -3,18 +3,31 @@ package server;
 import clientserverdata.Request;
 
 import java.io.*;
+import java.util.Arrays;
 
 class Serializer {
+
+    private static ObjectOutputStream objectOutputStream;
+    private static ByteArrayOutputStream baos;
+
+    static {
+        try {
+            baos = new ByteArrayOutputStream();
+            objectOutputStream = new ObjectOutputStream(baos);
+        } catch (IOException e) {
+            System.out.println("Some IO errors occurs.");
+        }
+    }
 
     static <T> byte[] serialize(T obj){
         byte[] buff;
         try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(baos);
             objectOutputStream.writeObject(obj);
             objectOutputStream.flush();
+            objectOutputStream.close();
             buff = baos.toByteArray();
             return buff;
+
         }
         catch (IOException e){
             System.out.print("Some class is unserializable");
@@ -23,11 +36,8 @@ class Serializer {
     }
 
     static Request deserialize(byte[] data){
-        try{
-            if (data != null) {
-                ObjectInput ois = new ObjectInputStream(new ByteArrayInputStream(data));
-                return (Request) ois.readObject();
-            }
+        try(ObjectInput ois = new ObjectInputStream(new ByteArrayInputStream(data))){
+            return (Request) ois.readObject();
         }
         catch (IOException ioException) {
             System.out.println("Oh no, some IO exception occurs.");
