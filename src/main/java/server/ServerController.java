@@ -30,7 +30,6 @@ public class ServerController {
             SocketAddress clientAddr = channel.receive(buf);
 
             if (checkConnection(buf) && clientAddr != null) {
-                System.out.println("Incoming request from:" + clientAddr);
                 scheduler.getClients().add((InetSocketAddress) clientAddr);
             }
         }
