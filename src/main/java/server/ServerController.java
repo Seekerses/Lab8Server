@@ -109,7 +109,7 @@ public class ServerController {
     }
 
 
-    static ServerScheduler getScheduler() {
+    public static ServerScheduler getScheduler() {
         return scheduler;
     }
 

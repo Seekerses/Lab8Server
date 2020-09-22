@@ -19,7 +19,8 @@ public class ServerScheduler implements Runnable{
     private volatile ConcurrentLinkedQueue<InetSocketAddress> clients;
     private volatile ConcurrentLinkedQueue<Request> requests;
     private volatile ConcurrentLinkedQueue<Reply> replays;
-    private ReentrantLock lock;
+    private ReentrantLock channelLock;
+    private ReentrantLock collectionLock;
 
     private int listenersCount;
     private int handlerCount;
@@ -38,7 +39,7 @@ public class ServerScheduler implements Runnable{
 
         ExecutorService listeners = Executors.newFixedThreadPool(listenersCount);
         ExecutorService handlers = Executors.newFixedThreadPool(handlerCount);
-        lock = new ReentrantLock();
+        channelLock = new ReentrantLock();
 
         for (int i = 0; i < listenersCount; i++){
             try {
@@ -58,23 +59,22 @@ public class ServerScheduler implements Runnable{
         new Thread(() -> {
             while (true) {
                 if (clients.size() != 0 && availableChannels.size() != 0) {
-                    lock.lock();
+                    channelLock.lock();
                     DatagramChannel channel = availableChannels.poll();
-                    lock.unlock();
+                    channelLock.unlock();
                     listeners.submit(new Receiver(clients.poll(),channel));
                 }
                 if (requests.size() != 0) {
                     handlers.submit(new RequestHandler(requests.poll()));
                 }
                 if (replays.size() != 0 && availableChannels.size() != 0) {
-                    lock.lock();
+                    channelLock.lock();
                     DatagramChannel channel = availableChannels.poll();
-                    lock.unlock();
+                    channelLock.unlock();
                     new Thread(new Sender(replays.poll(),channel)).start();
                 }
             }
         }).start();
-
     }
 
     ConcurrentLinkedQueue<DatagramChannel> getAvailableChannels() {
@@ -91,5 +91,9 @@ public class ServerScheduler implements Runnable{
 
     ConcurrentLinkedQueue<Reply> getReplays() {
         return replays;
+    }
+
+    public ReentrantLock getCollectionLock() {
+        return collectionLock;
     }
 }

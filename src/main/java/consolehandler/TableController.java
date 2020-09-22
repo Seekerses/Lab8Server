@@ -1,5 +1,7 @@
 package consolehandler;
 
+import server.ServerController;
+
 import java.util.Hashtable;
 
 /**
@@ -22,7 +24,13 @@ public class TableController {
      * @param table new Current Table
      */
     public static void setCurrentTable(TableManager table){
-        currentTable = table;
+        ServerController.getScheduler().getCollectionLock().lock();
+        try {
+            currentTable = table;
+        }
+        finally {
+            ServerController.getScheduler().getCollectionLock().unlock();
+        }
     }
 
     /**
@@ -39,7 +47,13 @@ public class TableController {
      * @param table Table Manager
      */
     public static void put(String key, TableManager table){
-        tables.put(key,table);
+        ServerController.getScheduler().getCollectionLock().lock();
+        try {
+            tables.put(key,table);
+        }
+        finally {
+            ServerController.getScheduler().getCollectionLock().unlock();
+        }
     }
 
     /**

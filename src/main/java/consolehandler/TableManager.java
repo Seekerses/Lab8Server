@@ -1,11 +1,10 @@
 package consolehandler;
 import productdata.Product;
+import server.ServerController;
 
 import java.io.*;
 import java.time.LocalDateTime;
 import java.util.*;
-
-//receiver
 
 /**
  * Class that works with one concrete Hashtable of Products
@@ -14,7 +13,7 @@ public class TableManager {
     /**
      * Table which instance will work with
      */
-    private Hashtable<String, Product> table;
+    private volatile Hashtable<String, Product> table;
     /**
      * Creation date of this Table Manager
      */
@@ -43,8 +42,14 @@ public class TableManager {
      * @param product Product
      */
     public void put(String index, Product product){
-        product.setId((long)TableController.getCurrentTable().getSize()+1);
-        table.put(index,product);
+        ServerController.getScheduler().getCollectionLock().lock();
+        try {
+            product.setId((long)TableController.getCurrentTable().getSize()+1);
+            table.put(index,product);
+        }
+        finally {
+            ServerController.getScheduler().getCollectionLock().unlock();
+        }
     }
 
     /**
@@ -53,7 +58,13 @@ public class TableManager {
      * @param product New Product
      */
     public void replace(String key,Product product){
-        table.replace(key,table.get(key),product);
+        ServerController.getScheduler().getCollectionLock().lock();
+        try {
+            table.replace(key,table.get(key),product);
+        }
+        finally {
+            ServerController.getScheduler().getCollectionLock().unlock();
+        }
     }
 
     /**
@@ -69,7 +80,13 @@ public class TableManager {
      * Cleans the Hashtable
      */
     public void clear(){
-        table.clear();
+        ServerController.getScheduler().getCollectionLock().lock();
+        try {
+            table.clear();
+        }
+        finally {
+            ServerController.getScheduler().getCollectionLock().unlock();
+        }
     }
 
     /**
@@ -106,15 +123,6 @@ public class TableManager {
     }
 
     /**
-     * Prints the table to the console
-     */
-    public String show(){
-        StringBuilder stringBuilder = new StringBuilder("");
-        table.forEach((k,v) -> stringBuilder.append(v.toString()));
-        return stringBuilder.toString();
-    }
-
-    /**
      * Returns type of collection
      * @return name of type of collection
      */
@@ -127,7 +135,13 @@ public class TableManager {
      * @param key Key of Product
      */
     public void remove(String key){
-        table.remove(key);
+        ServerController.getScheduler().getCollectionLock().lock();
+        try {
+            table.remove(key);
+        }
+        finally {
+            ServerController.getScheduler().getCollectionLock().unlock();
+        }
     }
 
     /**
@@ -135,7 +149,13 @@ public class TableManager {
      * @return Set of Products
      */
     public Set<Map.Entry<String, Product>> getSet() {
-        return table.entrySet();
+        ServerController.getScheduler().getCollectionLock().lock();
+        try {
+            return table.entrySet();
+        }
+        finally {
+            ServerController.getScheduler().getCollectionLock().unlock();
+        }
     }
 
     /**
@@ -143,7 +163,13 @@ public class TableManager {
      * @return Collection of Products
      */
     public Collection<Product> getProducts(){
-        return table.values();
+        ServerController.getScheduler().getCollectionLock().lock();
+        try {
+            return table.values();
+        }
+        finally {
+            ServerController.getScheduler().getCollectionLock().unlock();
+        }
     }
 
     /**
@@ -159,7 +185,13 @@ public class TableManager {
      * @param date new creation date
      */
     void setCreationDate(LocalDateTime date){
+        ServerController.getScheduler().getCollectionLock().lock();
+        try {
             Date = date;
+        }
+        finally {
+            ServerController.getScheduler().getCollectionLock().unlock();
+        }
     }
 
     /**
@@ -170,7 +202,4 @@ public class TableManager {
         return table.keySet();
     }
 
-    public void setTable(Hashtable<String, Product> table) {
-        this.table = table;
-    }
 }
