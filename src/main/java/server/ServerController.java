@@ -22,14 +22,6 @@ public class ServerController {
     public static void start() throws IOException {
 
         System.out.println("Server awaiting connections...\n");
-        scheduler = new ServerScheduler(5,5);
-        Thread initiateThread = new Thread(scheduler);
-        initiateThread.start();
-        try {
-            initiateThread.join();
-        } catch (InterruptedException e){
-            System.out.println("Loading of scheduler was interrupted!");
-        }
 
         ByteBuffer buf = ByteBuffer.allocate(1024);
         while (isUp){
@@ -123,5 +115,9 @@ public class ServerController {
 
     static NetworkInterface getNetworkInterface() {
         return networkInterface;
+    }
+
+    public static void setScheduler(ServerScheduler scheduler) {
+        ServerController.scheduler = scheduler;
     }
 }
