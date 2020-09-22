@@ -35,4 +35,11 @@ public class Address implements Serializable {
         else return false;
     }
 
+    public String getStreet() {
+        return street;
+    }
+
+    public Location getTown() {
+        return town;
+    }
 }

@@ -47,4 +47,15 @@ public class Location implements Serializable {
         else return false;
     }
 
+    public Long getZ() {
+        return z;
+    }
+
+    public Long getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
 }
