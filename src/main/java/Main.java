@@ -1,14 +1,19 @@
 
+import BD.DataHandler;
+import BD.DataManager;
+import BD.DataUserManager;
 import consolehandler.*;
 import server.ServerController;
 import server.ServerScheduler;
 
 import java.io.*;
+import java.sql.SQLException;
+import java.util.Scanner;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Main {
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, SQLException {
         ServerController.connect();
         ServerController.setScheduler(new ServerScheduler(5,5));
         Thread initiateThread = new Thread(ServerController.getScheduler());
@@ -47,6 +52,15 @@ public class Main {
                 Initializer.init(prodTable, null);
             }
         }
+        DataHandler handler = new DataHandler();
+        handler.setPassword("unravel");
+        handler.setUser("postgres");
+        handler.setUrl("jdbc:postgresql://localhost:5432/postgres");
+        handler.connectToDataBase();
+        handler.createTableProducts();
+        handler.createTableUsers();
+        handler.createTableOrganisations();
+        handler.createTableLocations();
         CommandController cmd = new CommandController();
         cmd.start(new CommandInterpreter());
         System.out.println("Enter Command or Help to display a list of commands:");

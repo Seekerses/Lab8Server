@@ -7,10 +7,7 @@ import exceptions.TooLargeFullName;
 import productdata.*;
 import server.User;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.Hashtable;
 
@@ -73,11 +70,11 @@ public class DataManager {
             BD.DataHandler.ORGANISATIONS_TABLE_FULLNAME_COLUMN + ", " +
             BD.DataHandler.ORGANISATIONS_TABLE_TYPE_COLUMN + ", " +
             BD.DataHandler.ORGANISATIONS_TABLE_PRODUCT_ID_COLUMN + ", " + ") VALUES (?, ?, ?, ?)";
-    private final String UPDATE_ORGANISATIONS_BY_ID = "UPDATE " + BD.DataHandler.ORGANISATIONS_TABLE + " SET " +
+    private final String UPDATE_ORGANISATIONS_BY_PRODUCT_ID = "UPDATE " + BD.DataHandler.ORGANISATIONS_TABLE + " SET " +
             BD.DataHandler.ORGANISATIONS_TABLE_NAME_COLUMN + " = ?, " +
             BD.DataHandler.ORGANISATIONS_TABLE_FULLNAME_COLUMN + " = ?, " +
             BD.DataHandler.ORGANISATIONS_TABLE_TYPE_COLUMN + " = ?, " + " WHERE " +
-            BD.DataHandler.ORGANISATIONS_TABLE_ID_COLUMN + " = ?";
+            BD.DataHandler.PRODUCTS_TABLE_ID_COLUMN + " = ?";
     private final String DELETE_ORGANISATIONS_BY_ID = "DELETE FROM " + BD.DataHandler.ORGANISATIONS_TABLE +
             " WHERE " + BD.DataHandler.ORGANISATIONS_TABLE_ID_COLUMN + " = ?";
     private DataHandler DataHandler;
@@ -191,12 +188,157 @@ public class DataManager {
             }
         } catch (SQLException exception) {
             System.out.println("Something went wrong with BD");
-        } catch (NotUniqueFullName | InvalidYCoordinate | TooLargeFullName | NegativePrice notUniqueFullName) {
+        } catch (NotUniqueFullName notUniqueFullName) {
+            notUniqueFullName.printStackTrace();
+        } catch (InvalidYCoordinate notUniqueFullName) {
+            notUniqueFullName.printStackTrace();
+        } catch (TooLargeFullName notUniqueFullName) {
+            notUniqueFullName.printStackTrace();
+        } catch (NegativePrice notUniqueFullName) {
             notUniqueFullName.printStackTrace();
         } finally {
             DataHandler.closePreparedStatement(preparedSelectAllStatement);
         }
         return products;
     }
+
+    public void deleteProductByUserId(long userId) {
+        PreparedStatement preparedDeleteChapterByIdStatement = null;
+        try {
+            preparedDeleteChapterByIdStatement = DataHandler.getPreparedStatement(DELETE_PRODUCTS_BY_ID, false);
+            preparedDeleteChapterByIdStatement.setLong(1, getProductIdByUserId(userId));
+            if (preparedDeleteChapterByIdStatement.executeUpdate() == 0)
+            System.out.println("Выполнен запрос DELETE_PRODUCTS_BY_ID.");
+        } catch (SQLException exception) {
+            System.out.println("Произошла ошибка при выполнении запроса DELETE_PRODUCTS_BY_ID!");
+        } finally {
+            DataHandler.closePreparedStatement(preparedDeleteChapterByIdStatement);
+        }
+    }
+
+    public boolean checkForRoots(long productId, User user){
+        PreparedStatement preparedCheckForRoots = null;
+        try{
+            preparedCheckForRoots = DataHandler.getPreparedStatement(SELECT_PRODUCTS_BY_ID_AND_USER_ID, false);
+            preparedCheckForRoots.setLong(1, productId);
+            preparedCheckForRoots.setLong(2, dataUserManager.getUserIdByUsername(user));
+            ResultSet rs = preparedCheckForRoots.executeQuery();
+            return rs.next();
+        }catch (SQLException e){
+            System.out.println("Problema v BD a ne vo mne");
+        }finally {
+            DataHandler.closePreparedStatement(preparedCheckForRoots);
+        }
+        return false;
+    }
+
+    private long getProductIdByUserId(long userId) {
+        PreparedStatement preparedSelectProductIdByUserId = null;
+        try{
+            preparedSelectProductIdByUserId = DataHandler.getPreparedStatement(SELECT_PRODUCTS_BY_ID_AND_USER_ID, false);
+            preparedSelectProductIdByUserId.setLong(1, productId);
+            preparedSelectProductIdByUserId.setLong(2, userId);
+            ResultSet rs = preparedSelectProductIdByUserId.executeQuery();
+            if(rs.next()){
+
+            }
+
+        }catch (SQLException e){
+
+        }
+    }
+
+    /*public void updateProductById(long productId) {
+        PreparedStatement preparedUpdateProductNameByIdStatement = null;
+        PreparedStatement preparedUpdateProductPriceByIdStatement = null;
+        PreparedStatement preparedUpdateProductTypeByIdStatement = null;
+        PreparedStatement preparedUpdateProductXByIdStatement = null;
+        PreparedStatement preparedUpdateProductYByIdStatement = null;
+        PreparedStatement preparedUpdateCoordinatesByProductIdStatement = null;
+        PreparedStatement preparedUpdateOrganisationByProductIdStatement = null;
+        try {
+            DataHandler.setCommitMode();
+            DataHandler.setSavepoint();
+
+            Statement ps = DataHandler.getConnection().createStatement();
+            ResultSet rs = ps.executeQuery("SELECT * FROM products WHERE id = " + productId);
+            Product product = createProduct(rs);
+
+            preparedUpdateProductNameByIdStatement = DataHandler.getPreparedStatement(UPDATE_PRODUCTS_NAME_BY_ID, false);
+            preparedUpdateProductPriceByIdStatement = DataHandler.getPreparedStatement(UPDATE_PRODUCTS_PRICE_BY_ID, false);
+            preparedUpdateProductTypeByIdStatement = DataHandler.getPreparedStatement(UPDATE_PRODUCTS_TYPE_BY_ID, false);
+            preparedUpdateProductXByIdStatement = DataHandler.getPreparedStatement(UPDATE_PRODUCTS_X_BY_ID, false);
+            preparedUpdateProductYByIdStatement = DataHandler.getPreparedStatement(UPDATE_PRODUCTS_Y_BY_ID, false);
+            preparedUpdateCoordinatesByProductIdStatement = DataHandler.getPreparedStatement(UPDATE_COORDINATES_BY_ORGANISATION_ID, false);
+            preparedUpdateOrganisationByProductIdStatement = DataHandler.getPreparedStatement(UPDATE_ORGANISATIONS_BY_PRODUCT_ID, false);
+
+            if (product.getName() != null) {
+                preparedUpdateProductNameByIdStatement.setString(1, marineRaw.getName());
+                preparedUpdateMarineNameByIdStatement.setLong(2, productId);
+                if (preparedUpdateMarineNameByIdStatement.executeUpdate() == 0) throw new SQLException();
+                System.out.println("Выполнен запрос UPDATE_PRODUCT_NAME_BY_ID.");
+            }
+            if (marineRaw.getCoordinates() != null) {
+                preparedUpdateCoordinatesByMarineIdStatement.setDouble(1, marineRaw.getCoordinates().getX());
+                preparedUpdateCoordinatesByMarineIdStatement.setFloat(2, marineRaw.getCoordinates().getY());
+                preparedUpdateCoordinatesByMarineIdStatement.setLong(3, marineId);
+                if (preparedUpdateCoordinatesByMarineIdStatement.executeUpdate() == 0) throw new SQLException();
+                System.out.println("Выполнен запрос UPDATE_COORDINATES_BY_ORGANISATION_ID.");
+            }
+            if (marineRaw.getHealth() != -1) {
+                preparedUpdateMarineHealthByIdStatement.setDouble(1, marineRaw.getHealth());
+                preparedUpdateMarineHealthByIdStatement.setLong(2, marineId);
+                if (preparedUpdateMarineHealthByIdStatement.executeUpdate() == 0) throw new SQLException();
+                System.out.println("Выполнен запрос UPDATE_MARINE_HEALTH_BY_ID.");
+            }
+            if (marineRaw.getCategory() != null) {
+                preparedUpdateMarineCategoryByIdStatement.setString(1, marineRaw.getCategory().toString());
+                preparedUpdateMarineCategoryByIdStatement.setLong(2, marineId);
+                if (preparedUpdateMarineCategoryByIdStatement.executeUpdate() == 0) throw new SQLException();
+                System.out.println("Выполнен запрос UPDATE_MARINE_CATEGORY_BY_ID.");
+            }
+            if (marineRaw.getWeaponType() != null) {
+                preparedUpdateMarineWeaponTypeByIdStatement.setString(1, marineRaw.getWeaponType().toString());
+                preparedUpdateMarineWeaponTypeByIdStatement.setLong(2, marineId);
+                if (preparedUpdateMarineWeaponTypeByIdStatement.executeUpdate() == 0) throw new SQLException();
+                App.logger.info("Выполнен запрос UPDATE_MARINE_WEAPON_TYPE_BY_ID.");
+            }
+            if (marineRaw.getMeleeWeapon() != null) {
+                preparedUpdateMarineMeleeWeaponByIdStatement.setString(1, marineRaw.getMeleeWeapon().toString());
+                preparedUpdateMarineMeleeWeaponByIdStatement.setLong(2, marineId);
+                if (preparedUpdateMarineMeleeWeaponByIdStatement.executeUpdate() == 0) throw new SQLException();
+                System.out.println("Выполнен запрос UPDATE_MARINE_MELEE_WEAPON_BY_ID.");
+            }
+            if (marineRaw.getChapter() != null) {
+                preparedUpdateChapterByIdStatement.setString(1, marineRaw.getChapter().getName());
+                preparedUpdateChapterByIdStatement.setLong(2, marineRaw.getChapter().getMarinesCount());
+                preparedUpdateChapterByIdStatement.setLong(3, getChapterIdByMarineId(marineId));
+                if (preparedUpdateChapterByIdStatement.executeUpdate() == 0) throw new SQLException();
+                System.out.println("Выполнен запрос UPDATE_LOCATION_BY_ID.");
+            }
+
+            DataHandler.commit();
+        } catch (SQLException exception) {
+            System.out.println("Произошла ошибка при выполнении группы запросов на обновление объекта!");
+            DataHandler.rollback();
+        } catch (NotUniqueFullName notUniqueFullName) {
+            notUniqueFullName.printStackTrace();
+        } catch (InvalidYCoordinate invalidYCoordinate) {
+            invalidYCoordinate.printStackTrace();
+        } catch (TooLargeFullName tooLargeFullName) {
+            tooLargeFullName.printStackTrace();
+        } catch (NegativePrice negativePrice) {
+            negativePrice.printStackTrace();
+        } finally {
+            DataHandler.closePreparedStatement(preparedUpdateProductNameByIdStatement);
+            DataHandler.closePreparedStatement(preparedUpdateProductPriceByIdStatement);
+            DataHandler.closePreparedStatement(preparedUpdateProductTypeByIdStatement);
+            DataHandler.closePreparedStatement(preparedUpdateProductXByIdStatement);
+            DataHandler.closePreparedStatement(preparedUpdateProductYByIdStatement);
+            DataHandler.closePreparedStatement(preparedUpdateCoordinatesByProductIdStatement);
+            DataHandler.closePreparedStatement(preparedUpdateOrganisationByProductIdStatement);
+            DataHandler.setNormalMode();
+        }
+    }*/
 
 }

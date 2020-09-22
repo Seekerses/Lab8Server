@@ -16,7 +16,7 @@ public class PasswordHasher {
      */
     public static String hashPassword(String password) {
         try {
-            MessageDigest md = MessageDigest.getInstance("SHA-512");
+            MessageDigest md = MessageDigest.getInstance("SHA-1");
             byte[] bytes = md.digest(password.getBytes());
             BigInteger integers = new BigInteger(1, bytes);
             String newPassword = integers.toString(16);

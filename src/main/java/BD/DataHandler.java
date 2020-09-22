@@ -45,16 +45,83 @@ public class DataHandler {
     private String password;
     private Connection connection;
 
-    public DataHandler() {
-        connectToDataBase();
-    }
-
-    private void connectToDataBase() {
+    public void connectToDataBase() {
         try {
             Class.forName(JDBC_DRIVER);
             connection = DriverManager.getConnection(url, user, password);
         } catch (SQLException | ClassNotFoundException exception) {
             System.out.println(exception);
+        }
+    }
+
+    public void createTableProducts() {
+        try {
+            Statement st = connection.createStatement();
+            boolean rs = st.execute("CREATE TABLE IF NOT EXISTS products (\n" +
+                    "  id NUMERIC NOT NULL,\n" +
+                    "  key varchar(50) NOT NULL,\n" +
+                    "  name varchar(50) NOT NULL,\n" +
+                    "  creation_time varchar(50) NOT NULL,\n" +
+                    "  product_unitofmeasure varchar(50) NOT NULL,\n" +
+                    "  price NUMERIC NOT NULL,\n" +
+                    "  x_coordinate NUMERIC NOT NULL,\n" +
+                    "  y_coordinate NUMERIC NOT NULL,\n" +
+                    "  user_id NUMERIC NOT NULL,\n" +
+                    "  PRIMARY KEY (id)\n" +
+                    ")");
+            st.close();
+        }catch (SQLException e){
+            System.out.println("nepoladki");
+        }
+    }
+
+    public void createTableUsers() throws SQLException {
+        try {
+            Statement stat = connection.createStatement();
+            boolean rsat = stat.execute("CREATE TABLE IF NOT EXISTS users (\n" +
+                    "  id NUMERIC NOT NULL,\n" +
+                    "  username varchar(50) NOT NULL,\n" +
+                    "  password varchar(150) NOT NULL,\n" +
+                    "  PRIMARY KEY (id)\n" +
+                    ")");
+            stat.close();
+        }catch (SQLException e){
+            System.out.println("nepoladki");
+        }
+    }
+
+    public void createTableLocations() throws SQLException {
+        try {
+            Statement sta = connection.createStatement();
+            boolean rsa = sta.execute("CREATE TABLE IF NOT EXISTS locations (\n" +
+                    "  id NUMERIC NOT NULL,\n" +
+                    "  organisation_id NUMERIC NOT NULL,\n" +
+                    "  street varchar(50) NOT NULL,\n" +
+                    "  x NUMERIC NOT NULL,\n" +
+                    "  y NUMERIC NOT NULL,\n" +
+                    "  z NUMERIC NOT NULL,\n" +
+                    "  PRIMARY KEY (id)\n" +
+                    ")");
+            sta.close();
+        }catch (SQLException e){
+            System.out.println("nepoladki");
+        }
+    }
+
+    public void createTableOrganisations() throws SQLException {
+        try {
+            Statement state = connection.createStatement();
+            boolean rsate = state.execute("CREATE TABLE IF NOT EXISTS organisations (\n" +
+                    "  id NUMERIC NOT NULL,\n" +
+                    "  name varchar(50) NOT NULL,\n" +
+                    "  fullname varchar(50) NOT NULL,\n" +
+                    "  type varchar(50) NOT NULL,\n" +
+                    "  product_id NUMERIC NOT NULL,\n" +
+                    "  PRIMARY KEY (id)\n" +
+                    ")");
+            state.close();
+        }catch (SQLException e){
+            System.out.println("nepoladki");
         }
     }
 
@@ -89,6 +156,10 @@ public class DataHandler {
         } catch (SQLException exception) {
             System.out.println("Произошла ошибка при закрытии SQL запроса '" + sqlStatement + "'.");
         }
+    }
+
+    public Connection getConnection() {
+        return connection;
     }
 
     public void setCommitMode() {

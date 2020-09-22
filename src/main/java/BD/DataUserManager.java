@@ -96,7 +96,7 @@ public class DataUserManager {
             preparedInsertUserStatement =
                     DataHandler.getPreparedStatement(INSERT_USER, false);
             preparedInsertUserStatement.setString(1, user.getUsername());
-            preparedInsertUserStatement.setString(2, user.getPassword());
+            preparedInsertUserStatement.setString(2, PasswordHasher.hashPassword(user.getPassword()));
             if (preparedInsertUserStatement.executeUpdate() == 0) throw new SQLException();
             System.out.println("Выполнен запрос INSERT_USER.");
             return true;
