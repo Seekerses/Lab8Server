@@ -25,7 +25,7 @@ public class ServerScheduler implements Runnable{
     private int listenersCount;
     private int handlerCount;
 
-    ServerScheduler(int listenersCount, int handlerCount){
+    public ServerScheduler(int listenersCount, int handlerCount){
         this.listenersCount = listenersCount;
         this.handlerCount = handlerCount;
         availableChannels = new ConcurrentLinkedQueue<>();
@@ -40,6 +40,7 @@ public class ServerScheduler implements Runnable{
         ExecutorService listeners = Executors.newFixedThreadPool(listenersCount);
         ExecutorService handlers = Executors.newFixedThreadPool(handlerCount);
         channelLock = new ReentrantLock();
+        collectionLock = new ReentrantLock();
 
         for (int i = 0; i < listenersCount; i++){
             try {
