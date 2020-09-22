@@ -26,7 +26,7 @@ public class CommandInterpreter implements Interpreter {
      * @throws IOException If an I/O error occurs
      */
     @Override
-    public void handle(String[] args) throws IOException {
+    public String handle(String[] args) throws IOException {
         if(args.length>0)
             if (cmdList.getCommands().containsKey(args[0])) {
                 CommandController.getCommandHistory().addCommand(cmdList.getCommands().get(args[0]).toString());
@@ -40,17 +40,18 @@ public class CommandInterpreter implements Interpreter {
                             arguments[i] = "";
                         }
                     }
-                    System.out.println(cmdList.getCommands().get(args[0]).execute(arguments));
+                    return (cmdList.getCommands().get(args[0]).execute(arguments));
                 } catch (FileNotFoundException e) {
-                    e.printStackTrace();
+                    return "File not found.";
                 }
                 catch (NullPointerException e){
-                    System.out.println("Wrong arguments...");
+                    return ("Wrong arguments...");
                 }
             }
             else {
-                System.out.println("There is no such command. Enter help to see a list of available commands ..");
+                return ("There is no such command. Enter help to see a list of available commands ..");
             }
+            return "how did ypu do this?";
         }
 
     /**

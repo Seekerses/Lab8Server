@@ -25,24 +25,27 @@ public class CommandController {
      * @param interpreter Interpreter, which controller will use to interpret commands
      */
     public void start(Interpreter interpreter){
+        System.out.println("Enter Command or Help to display a list of commands:");
+        System.out.print(">");
         isOn = true;
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-            if (reader.ready()) {
-                String line = reader.readLine();
+        while(isOn) {
+            try {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+                if (reader.ready()) {
+                    String line = reader.readLine();
 
-                if(line == null){
-                System.exit(0);
-            }
-                if(!"".equals(line)) {
-                    interpreter.handle(line.split(" "));
-                    System.out.println("\nEnter command:");
-                    System.out.print(">");
+                    if (line == null) {
+                        System.exit(0);
+                    }
+                    if (!"".equals(line)) {
+                        System.out.println(interpreter.handle(line.split(" ")));
+                        System.out.println("\nEnter command:");
+                        System.out.print(">");
+                    }
                 }
+            } catch (IOException e) {
+                System.out.println("Invalid symbol sequence, enter correct command or enter help to get a list of commands...");
             }
-        }
-        catch (IOException e){
-            System.out.println("Invalid symbol sequence, enter correct command or enter help to get a list of commands...");
         }
     }
 

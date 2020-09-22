@@ -4,6 +4,7 @@ import consolehandler.cmdLists.StdCommandList;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Class that parse the script files
@@ -62,17 +63,19 @@ public class ScriptParser {
         return null;
     }
 
-    public static void executeQuery(ArrayList<String[]> commands){
+    public static String executeQuery(ArrayList<String[]> commands){
 
+        StringBuilder res = new StringBuilder();
+        CommandInterpreter itr = new CommandInterpreter();
         for (String[] command : commands) {
-            CommandInterpreter itr = new CommandInterpreter();
             try {
-                itr.handle(command);
-                System.out.println("\n");
+                res.append(itr.handle(command));
+                res.append("\n");
             }
             catch (IOException e){
-                System.out.println("Some mistakes in the script...");
+                return ("Some mistakes in the script...");
             }
         }
+        return res.toString();
     }
 }

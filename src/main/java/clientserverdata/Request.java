@@ -3,12 +3,17 @@ package clientserverdata;
 import cmd.Command;
 
 import java.io.Serializable;
+import java.net.InetSocketAddress;
 import java.util.Arrays;
 
 public class Request implements Serializable {
 
-    String[] args;
-    Command command;
+    private String[] args;
+    private Command command;
+    String login;
+    String password;
+    private InetSocketAddress address;
+
     private static final long serialVersionUID = 1337L;
 
     public Request(Command cmd, String[] args){
@@ -22,6 +27,14 @@ public class Request implements Serializable {
 
     public Command getCommand() {
         return command;
+    }
+
+    public InetSocketAddress getAddress() {
+        return address;
+    }
+
+    public void setAddress(InetSocketAddress address) {
+        this.address = address;
     }
 
     @Override

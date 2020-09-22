@@ -24,7 +24,7 @@ public class UniqueController {
      * @param index Full name of Org
      * @return true if Org already exists, false if not
      */
-    public static boolean check(String index){
+    static boolean check(String index){
         return orgTable.containsKey(index);
     }
 

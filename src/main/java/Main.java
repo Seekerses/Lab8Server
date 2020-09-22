@@ -1,3 +1,4 @@
+
 import consolehandler.*;
 import server.ServerController;
 
@@ -5,7 +6,7 @@ import java.io.*;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args){
         TableManager prodTable = new TableManager("products");
         TableController.setCurrentTable(prodTable);
         try {
@@ -27,7 +28,16 @@ public class Main {
             }
         }
         ServerController.connect();
-        ServerController.start();
+        new Thread(() -> {
+        try {
+            ServerController.start();
+        }
+        catch (IOException e){
+            System.out.println("Oh, no. Server got a wrong data and fall...");
+        }
+    }).start();
+        CommandController cmd = new CommandController();
+        cmd.start(new CommandInterpreter());
         System.out.println("Enter Command or Help to display a list of commands:");
     }
 }

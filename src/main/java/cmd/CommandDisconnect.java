@@ -1,6 +1,5 @@
 package cmd;
 
-import java.io.IOException;
 
 /**
  * break the programm

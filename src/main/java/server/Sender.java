@@ -1,16 +1,29 @@
 package server;
 
+import clientserverdata.Reply;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.DatagramChannel;
 import java.util.Arrays;
 
-class Sender {
+class Sender implements Runnable{
 
-        static void send(byte[] data){
+    private Reply reply;
+    private DatagramChannel channel;
+
+    Sender(Reply reply, DatagramChannel channel){
+        this.reply = reply;
+        this.channel = channel;
+    }
+
+        private void send(byte[] data){
+
             byte[] done = new byte[1024]; //std buffer for exchanging done reply
             done[0] = 33;
 
             try {
+
                 ByteBuffer buffer = ByteBuffer.allocate(1024);
                 ByteBuffer handle = ByteBuffer.allocate(1024);
                 boolean last = false;
@@ -26,9 +39,13 @@ class Sender {
                     }
 
                     buffer.flip();
-                    ServerController.getChannel().send(buffer,ServerController.getRemoteAddr());
+                    channel.send(buffer,channel.getRemoteAddress());
 
-                    ServerController.getChannel().receive(handle);
+
+                    channel.receive(handle);
+                    while (handle.array()[0] != 111 && handle.array()[0] != 22 && Arrays.equals(handle.array(), new byte[1024])){
+                        channel.receive(handle);
+                    }
 
                     if ( handle.array()[0] == 111 ){
                         if ( data.length > 1012 ) {
@@ -38,17 +55,38 @@ class Sender {
                     else {
                         last = false;
                     }
+
                     buffer.clear();
                     handle.clear();
                 }
                 buffer.put(done);
                 buffer.flip();
-                ServerController.getChannel().send(buffer,ServerController.getRemoteAddr());
+                channel.send(buffer,channel.getRemoteAddress());
                 buffer.clear();
             }
             catch (IOException e){
-                System.out.println("Error");
+                System.out.println("Oh, no. IO errors while sending reply!");
             }
         }
 
+    @Override
+    public void run() {
+        try {
+            channel.connect(reply.getAddress());
+        } catch (IOException e) {
+            System.out.println("Failing in connection to remote address.");
+        }
+        catch (NullPointerException e){
+            System.out.println("Empty address of reply!");
+        }
+
+        send(Serializer.serialize(reply));
+        try {
+            channel.disconnect();
+        } catch (IOException e) {
+            System.out.println("Failing while disconnect from remote address.");
+        }
+
+        ServerController.getScheduler().availableChannels.add(channel);
+    }
 }

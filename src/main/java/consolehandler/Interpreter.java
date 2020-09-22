@@ -11,6 +11,6 @@ public interface Interpreter {
      * @param args Command
      * @throws IOException If an I/O error occurs
      */
-    void handle(String[] args) throws IOException;
+    String handle(String[] args) throws IOException;
 
 }

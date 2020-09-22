@@ -1,8 +1,6 @@
 package cmd;
 
 import consolehandler.ScriptParser;
-
-import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -15,18 +13,16 @@ public class CommandExecute_Script implements Command{
 
     private static final long serialVersionUID = 1337000004L;
 
-    ArrayList<String[]> commands;
+    private ArrayList<String[]> commands;
 
     @Override
-    public String execute(String[] args) throws IOException {
+    public String execute(String[] args) {
         if (commands == null){
-            ScriptParser.parseScript(args[0]);
-            execute(args);
+            commands = ScriptParser.parseScript(args[0]);
             return null;
         }
         else {
-            ScriptParser.executeQuery(commands);
-            return ("Script was successfully executed");
+            return ScriptParser.executeQuery(commands);
         }
     }
 
