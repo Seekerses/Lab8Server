@@ -17,7 +17,7 @@ class RequestHandler implements Runnable {
     private Reply handleRequest(Request request) {
 
         Reply reply = null;
-        System.out.printf("Incoming request from %s is: %s ", request.getAddress(), request.getCommand());
+        System.out.printf("\b\nIncoming request from %s is: %s \n>", request.getAddress(), request.getCommand());
 
         try {
             if (request.getCommand() instanceof CommandHistory){
