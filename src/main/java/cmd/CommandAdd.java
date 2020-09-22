@@ -1,12 +1,17 @@
 package cmd;
+import BD.DataHandler;
+import BD.DataManager;
+import BD.DataUserManager;
 import consolehandler.Initializer;
 import consolehandler.TableController;
 import productdata.Product;
 import productdata.ReaderProductBuilder;
+import server.User;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.Serializable;
+import java.sql.SQLException;
 
 /**
  * get name of command
@@ -16,10 +21,9 @@ import java.io.Serializable;
 
 public class CommandAdd implements Command, Preparable, Serializable {
 
-
-
     Product product;
     String key;
+    User user;
     private static final long serialVersionUID = 1337000000L;
 
     /**
@@ -34,7 +38,19 @@ public class CommandAdd implements Command, Preparable, Serializable {
             execute(args);
         }
         else {
-            TableController.getCurrentTable().put(key, product);
+            DataHandler handler = new DataHandler();
+            DataUserManager userManager = new DataUserManager(handler);
+            DataManager manager = new DataManager(handler, userManager);
+            if(userManager.checkUserByUsernameAndPassword(user)) {
+                try {
+                    manager.insertProduct(product, key, user);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }else{
+                return "You don't have rights to do it";
+            }
+            TableController.getCurrentTable().loadCollection();
             return ("Insertion complete...");
         }
         return null;

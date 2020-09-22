@@ -1,5 +1,9 @@
 package cmd;
 
+import BD.DataHandler;
+import BD.DataUserManager;
+import server.User;
+
 import javax.imageio.spi.RegisterableService;
 import java.io.IOException;
 import java.util.Scanner;
@@ -12,7 +16,13 @@ public class CommandLogin implements Command, Preparable, Registerable {
 
     @Override
     public String execute(String[] args) throws IOException {
-        //Логика запроса к БД
+        DataHandler handler = new DataHandler();
+        handler.setUser(login);
+        handler.setPassword(password);
+        DataUserManager userManager = new DataUserManager(handler);
+        User user = new User();
+        if (userManager.checkUserByUsernameAndPassword(user)) System.out.println("Пользователь " +
+                user.getUsername() + " авторизован.");
         return "Approved";
     }
 

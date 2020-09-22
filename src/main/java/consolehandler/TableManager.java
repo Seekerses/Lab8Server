@@ -1,4 +1,7 @@
 package consolehandler;
+import BD.DataHandler;
+import BD.DataManager;
+import BD.DataUserManager;
 import productdata.Product;
 import server.ServerController;
 
@@ -10,6 +13,9 @@ import java.util.*;
  * Class that works with one concrete Hashtable of Products
  */
 public class TableManager {
+    private DataManager databaseManager;
+    private DataHandler dataHandler;
+    private DataUserManager userManager;
     /**
      * Table which instance will work with
      */
@@ -200,6 +206,18 @@ public class TableManager {
      */
     public Set<String> getKey() {
         return table.keySet();
+    }
+
+    public void loadCollection() {
+        try {
+            dataHandler = new DataHandler();
+            userManager = new DataUserManager(dataHandler);
+            databaseManager = new DataManager(dataHandler, userManager);
+            table = databaseManager.getCollection();
+            System.out.println("Коллекция загружена.");
+        } catch (Exception exception) {
+            System.out.println("Коллекция не может быть загружена!");
+        }
     }
 
 }

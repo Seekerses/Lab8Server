@@ -33,7 +33,11 @@ public class StdCommandList implements CommandList {
         Commandfilter_less_than_manufacturer commandfilter_less_than_manufacturer = new Commandfilter_less_than_manufacturer();
         Commandgroup_counting_by_coordinates commandgroup_counting_by_coordinates = new Commandgroup_counting_by_coordinates();
         CommandDisconnect disconnect = new CommandDisconnect();
+        CommandLogin login = new CommandLogin();
+        CommandRegister register = new CommandRegister();
 
+        commands.put("login",login);
+        commands.put("register",register);
         commands.put("disconnect",disconnect);
         commands.put("help", commandHelp);
         commands.put("replace_if_greater",commandreplaceIfGreater);
