@@ -4,7 +4,6 @@ import BD.DataHandler;
 import BD.DataUserManager;
 import server.User;
 
-import java.io.IOException;
 import java.util.Scanner;
 
 public class CommandRegister implements Command, Preparable, Registerable {

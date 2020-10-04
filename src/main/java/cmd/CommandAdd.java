@@ -43,12 +43,13 @@ public class CommandAdd implements Command, Preparable, Serializable {
             User user = new User();
             user.setUsername(login);
             user.setPassword(password);
-            product.setOwner(user);
+
             DataHandler handler = new DataHandler();
             DataUserManager userManager = new DataUserManager(handler);
             DataManager manager = new DataManager(handler, userManager);
             if(userManager.checkUserByUsernameAndPassword(user)) {
                 try {
+                    product.setOwner(user);
                     manager.insertProduct(product, key, user);
                 } catch (SQLException e) {
                     e.printStackTrace();

@@ -55,7 +55,7 @@ public class DataUserManager {
             preparedSelectUserByUsernameAndPasswordStatement =
                     DataHandler.getPreparedStatement(SELECT_USER_BY_USERNAME_AND_PASSWORD, false);
             preparedSelectUserByUsernameAndPasswordStatement.setString(1, user.getUsername());
-            preparedSelectUserByUsernameAndPasswordStatement.setString(2, user.getPassword());
+            preparedSelectUserByUsernameAndPasswordStatement.setString(2, PasswordHasher.hashPassword(user.getPassword()));
             ResultSet resultSet = preparedSelectUserByUsernameAndPasswordStatement.executeQuery();
             return resultSet.next();
         } catch (SQLException exception) {

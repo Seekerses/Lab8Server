@@ -21,9 +21,10 @@ public class CommandLogin implements Command, Preparable, Registerable {
         User user = new User();
         user.setUsername(login);
         user.setPassword(password);
-        if (userManager.checkUserByUsernameAndPassword(user)) System.out.println("Пользователь " +
+        if (userManager.checkUserByUsernameAndPassword(user)) {System.out.println("Пользователь " +
                 user.getUsername() + " авторизован.");
-        return "Approved";
+        return "Approved";}
+        return "wrong";
     }
 
     @Override

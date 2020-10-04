@@ -14,7 +14,7 @@ public class DataHandler {
     public static final String PRODUCTS_TABLE_ID_COLUMN = "id";
     public static final String PRODUCTS_TABLE_KEY_COLUMN = "key";
     public static final String PRODUCTS_TABLE_NAME_COLUMN = "name";
-    public static final String PRODUCTS_TABLE_CREATION_DATE_COLUMN = "creation_date";
+    public static final String PRODUCTS_TABLE_CREATION_DATE_COLUMN = "creation_time";
     public static final String PRODUCTS_TABLE_TYPE_COLUMN = "product_unitofmeasure";
     public static final String PRODUCTS_TABLE_PRICE_COLUMN = "price";
     public static final String PRODUCTS_TABLE_X_COLUMN = "x_coordinate";
@@ -72,7 +72,8 @@ public class DataHandler {
                     "  x_coordinate NUMERIC NOT NULL,\n" +
                     "  y_coordinate NUMERIC NOT NULL,\n" +
                     "  user_id NUMERIC NOT NULL,\n" +
-                    "  PRIMARY KEY (id)\n" +
+                    "  PRIMARY KEY (id)\n," +
+                    "  UNIQUE(key)" +
                     ")");
             st.close();
         }catch (SQLException e){
