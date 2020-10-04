@@ -18,9 +18,7 @@ public class DataUserManager {
     private final String SELECT_USER_BY_USERNAME_AND_PASSWORD = SELECT_USER_BY_USERNAME + " AND " +
             BD.DataHandler.USER_TABLE_PASSWORD_COLUMN + " = ?";
     private final String INSERT_USER = "INSERT INTO " +
-            BD.DataHandler.USER_TABLE + " (" +
-            BD.DataHandler.USER_TABLE_USERNAME_COLUMN + ", " +
-            BD.DataHandler.USER_TABLE_PASSWORD_COLUMN + ") VALUES (?, ?)";
+            BD.DataHandler.USER_TABLE + " VALUES (DEFAULT, ?, ?)";
 
     private DataHandler DataHandler;
 
@@ -92,7 +90,6 @@ public class DataUserManager {
     public boolean insertUser(User user) {
         PreparedStatement preparedInsertUserStatement = null;
         try {
-            if (getUserIdByUsername(user) != -1) return false;
             preparedInsertUserStatement =
                     DataHandler.getPreparedStatement(INSERT_USER, false);
             preparedInsertUserStatement.setString(1, user.getUsername());

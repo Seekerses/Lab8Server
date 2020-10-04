@@ -53,9 +53,6 @@ public class Main {
             }
         }
         DataHandler handler = new DataHandler();
-        handler.setPassword("unravel");
-        handler.setUser("postgres");
-        handler.setUrl("jdbc:postgresql://localhost:5432/postgres");
         handler.connectToDataBase();
         handler.createTableProducts();
         handler.createTableUsers();

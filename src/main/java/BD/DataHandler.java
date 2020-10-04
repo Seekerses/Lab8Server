@@ -40,15 +40,20 @@ public class DataHandler {
 
     private final String JDBC_DRIVER = "org.postgresql.Driver";
 
-    private String url;
-    private String user;
-    private String password;
+    private String url = "jdbc:postgresql://localhost:5432/postgres";
+    private String user = "postgres";
+    private String password = "unravel";
     private Connection connection;
+
+    public DataHandler(){
+        connectToDataBase();
+    }
 
     public void connectToDataBase() {
         try {
             Class.forName(JDBC_DRIVER);
             connection = DriverManager.getConnection(url, user, password);
+            System.out.println("Connect successful");
         } catch (SQLException | ClassNotFoundException exception) {
             System.out.println(exception);
         }
@@ -58,7 +63,7 @@ public class DataHandler {
         try {
             Statement st = connection.createStatement();
             boolean rs = st.execute("CREATE TABLE IF NOT EXISTS products (\n" +
-                    "  id NUMERIC NOT NULL,\n" +
+                    "  id serial,\n" +
                     "  key varchar(50) NOT NULL,\n" +
                     "  name varchar(50) NOT NULL,\n" +
                     "  creation_time varchar(50) NOT NULL,\n" +
@@ -79,10 +84,11 @@ public class DataHandler {
         try {
             Statement stat = connection.createStatement();
             boolean rsat = stat.execute("CREATE TABLE IF NOT EXISTS users (\n" +
-                    "  id NUMERIC NOT NULL,\n" +
+                    "  id serial,\n" +
                     "  username varchar(50) NOT NULL,\n" +
                     "  password varchar(150) NOT NULL,\n" +
-                    "  PRIMARY KEY (id)\n" +
+                    "  PRIMARY KEY (id)\n," +
+                    "  UNIQUE(username)" +
                     ")");
             stat.close();
         }catch (SQLException e){
@@ -94,7 +100,7 @@ public class DataHandler {
         try {
             Statement sta = connection.createStatement();
             boolean rsa = sta.execute("CREATE TABLE IF NOT EXISTS locations (\n" +
-                    "  id NUMERIC NOT NULL,\n" +
+                    "  id serial,\n" +
                     "  organisation_id NUMERIC NOT NULL,\n" +
                     "  street varchar(50) NOT NULL,\n" +
                     "  x NUMERIC NOT NULL,\n" +
@@ -112,7 +118,7 @@ public class DataHandler {
         try {
             Statement state = connection.createStatement();
             boolean rsate = state.execute("CREATE TABLE IF NOT EXISTS organisations (\n" +
-                    "  id NUMERIC NOT NULL,\n" +
+                    "  id serial,\n" +
                     "  name varchar(50) NOT NULL,\n" +
                     "  fullname varchar(50) NOT NULL,\n" +
                     "  type varchar(50) NOT NULL,\n" +

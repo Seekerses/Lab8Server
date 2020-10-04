@@ -12,15 +12,15 @@ public class CommandLogin implements Command, Preparable, Registerable {
 
     private String login;
     private String password;
-    private static final long serialVersionUID = 1337000023L;
+    private static final long serialVersionUID = 1337000051L;
 
     @Override
-    public String execute(String[] args) throws IOException {
+    public String execute(String[] args) {
         DataHandler handler = new DataHandler();
-        handler.setUser(login);
-        handler.setPassword(password);
         DataUserManager userManager = new DataUserManager(handler);
         User user = new User();
+        user.setUsername(login);
+        user.setPassword(password);
         if (userManager.checkUserByUsernameAndPassword(user)) System.out.println("Пользователь " +
                 user.getUsername() + " авторизован.");
         return "Approved";

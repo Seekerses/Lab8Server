@@ -1,5 +1,9 @@
 package cmd;
+import BD.DataHandler;
+import BD.DataManager;
+import BD.DataUserManager;
 import consolehandler.TableController;
+import server.User;
 
 /**
  * remove all elements from the collection
@@ -8,6 +12,9 @@ import consolehandler.TableController;
  */
 
 public class CommandClear implements Command {
+
+    private String login;
+    private String password;
 
     private static final long serialVersionUID = 1337000002L;
 
@@ -21,8 +28,16 @@ public class CommandClear implements Command {
             if (TableController.getCurrentTable().getSize() == 0) {
                 return ("Collection is already empty.");
             } else {
-                TableController.getCurrentTable().clear();
-                return ("Collection has been cleared.");
+                User user = new User();
+                user.setPassword(password);
+                user.setUsername(login);
+                DataHandler handler = new DataHandler();
+                DataUserManager userManager = new DataUserManager(handler);
+                DataManager manager = new DataManager(handler,userManager);
+
+
+                TableController.getCurrentTable().loadCollection();
+                return ("Your Collection has been cleared.");
             }
         }
         return null;
