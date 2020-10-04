@@ -12,14 +12,19 @@ import java.time.LocalDateTime;
 import java.util.Hashtable;
 
 public class DataManager {
+    private static final String SELECT_USER_BY_ID = "SELECT * FROM " + BD.DataHandler.USER_TABLE + " WHERE " +
+            BD.DataHandler.USER_TABLE_ID_COLUMN + " = ?";
     // PRODUCTS_TABLE
     private final String SELECT_ALL_PRODUCTS = "SELECT * FROM " + BD.DataHandler.PRODUCTS_TABLE;
+    private final String SELECT_ALL_PRODUCTS_BY_USER_ID = "SELECT * FROM " + BD.DataHandler.PRODUCTS_TABLE + " WHERE " +
+            BD.DataHandler.PRODUCTS_TABLE_USER_ID_COLUMN + " = ?";
     private final String SELECT_PRODUCTS_BY_ID = SELECT_ALL_PRODUCTS + " WHERE " +
             BD.DataHandler.PRODUCTS_TABLE_ID_COLUMN + " = ?";
     private final String SELECT_PRODUCTS_BY_ID_AND_USER_ID = SELECT_PRODUCTS_BY_ID + " AND " +
             BD.DataHandler.PRODUCTS_TABLE_USER_ID_COLUMN + " = ?";
     private final String INSERT_PRODUCTS = "INSERT INTO " +
             BD.DataHandler.PRODUCTS_TABLE + " (" +
+            BD.DataHandler.PRODUCTS_TABLE_ID_COLUMN + ", " +
             BD.DataHandler.PRODUCTS_TABLE_KEY_COLUMN + ", " +
             BD.DataHandler.PRODUCTS_TABLE_NAME_COLUMN + ", " +
             BD.DataHandler.PRODUCTS_TABLE_CREATION_DATE_COLUMN + ", " +
@@ -27,9 +32,9 @@ public class DataManager {
             BD.DataHandler.PRODUCTS_TABLE_X_COLUMN + ", " +
             BD.DataHandler.PRODUCTS_TABLE_Y_COLUMN + ", " +
             BD.DataHandler.PRODUCTS_TABLE_PRICE_COLUMN + ", " +
-            BD.DataHandler.PRODUCTS_TABLE_USER_ID_COLUMN + ") VALUES (?, ?, ?, ?, ?, ?, ?)";
-    private final String DELETE_PRODUCTS_BY_ID = "DELETE FROM " + BD.DataHandler.PRODUCTS_TABLE +
-            " WHERE " + BD.DataHandler.PRODUCTS_TABLE_ID_COLUMN + " = ?";
+            BD.DataHandler.PRODUCTS_TABLE_USER_ID_COLUMN + ") VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?)";
+    private final String DELETE_PRODUCTS_BY_USER_ID = "DELETE FROM " + BD.DataHandler.PRODUCTS_TABLE +
+            " WHERE " + BD.DataHandler.PRODUCTS_TABLE_USER_ID_COLUMN + " = ?";
     private final String UPDATE_PRODUCTS_NAME_BY_ID = "UPDATE " + BD.DataHandler.PRODUCTS_TABLE + " SET " +
             BD.DataHandler.PRODUCTS_TABLE_NAME_COLUMN + " = ?" + " WHERE " +
             BD.DataHandler.PRODUCTS_TABLE_ID_COLUMN + " = ?";
@@ -51,11 +56,12 @@ public class DataManager {
             " WHERE " + BD.DataHandler.COORDINATES_TABLE_ORGANISATION_ID_COLUMN + " = ?";
     private final String INSERT_COORDINATES = "INSERT INTO " +
             BD.DataHandler.LOCATION_TABLE + " (" +
+            BD.DataHandler.COORDINATES_TABLE_ID_COLUMN + ", " +
             BD.DataHandler.COORDINATES_TABLE_ORGANISATION_ID_COLUMN + ", " +
             BD.DataHandler.COORDINATES_TABLE_STREET_COLUMN + ", " +
             BD.DataHandler.COORDINATES_TABLE_X_COLUMN + ", " +
             BD.DataHandler.COORDINATES_TABLE_Y_COLUMN + ", " +
-            BD.DataHandler.COORDINATES_TABLE_Z_COLUMN + ") VALUES (?, ?, ?, ?, ?)";
+            BD.DataHandler.COORDINATES_TABLE_Z_COLUMN + ") VALUES (DEFAULT, ?, ?, ?, ?, ?)";
     private final String UPDATE_COORDINATES_BY_ORGANISATION_ID = "UPDATE " + BD.DataHandler.LOCATION_TABLE + " SET " +
             BD.DataHandler.COORDINATES_TABLE_X_COLUMN + " = ?, " +
             BD.DataHandler.COORDINATES_TABLE_Y_COLUMN + " = ?" + " WHERE " +
@@ -66,10 +72,11 @@ public class DataManager {
             " WHERE " + BD.DataHandler.ORGANISATIONS_TABLE_ID_COLUMN + " = ?";
     private final String INSERT_ORGANISATIONS = "INSERT INTO " +
             BD.DataHandler.ORGANISATIONS_TABLE + " (" +
+            BD.DataHandler.ORGANISATIONS_TABLE_ID_COLUMN + ", " +
             BD.DataHandler.ORGANISATIONS_TABLE_NAME_COLUMN + ", " +
             BD.DataHandler.ORGANISATIONS_TABLE_FULLNAME_COLUMN + ", " +
             BD.DataHandler.ORGANISATIONS_TABLE_TYPE_COLUMN + ", " +
-            BD.DataHandler.ORGANISATIONS_TABLE_PRODUCT_ID_COLUMN + ", " + ") VALUES (?, ?, ?, ?)";
+            BD.DataHandler.ORGANISATIONS_TABLE_PRODUCT_ID_COLUMN  + ") VALUES (DEFAULT, ?, ?, ?, ?)";
     private final String UPDATE_ORGANISATIONS_BY_PRODUCT_ID = "UPDATE " + BD.DataHandler.ORGANISATIONS_TABLE + " SET " +
             BD.DataHandler.ORGANISATIONS_TABLE_NAME_COLUMN + " = ?, " +
             BD.DataHandler.ORGANISATIONS_TABLE_FULLNAME_COLUMN + " = ?, " +
@@ -105,7 +112,7 @@ public class DataManager {
         Address adr = new Address(street, loc);
         Organization org = new Organization(org_id, org_name, org_fullname, org_type, adr);
         User owner = dataUserManager.getUserById(resultSet.getLong(BD.DataHandler.PRODUCTS_TABLE_USER_ID_COLUMN));
-        return new Product(
+        Product product = new Product(
                 id,
                 name,
                 new Coordinates(px, py),
@@ -114,6 +121,8 @@ public class DataManager {
                 org,
                 creationDate
         );
+        product.setOwner(owner);
+        return product;
     }
 
     public boolean insertProduct(Product product, String key, User user) throws SQLException {
@@ -127,35 +136,36 @@ public class DataManager {
 
             LocalDateTime creationtime = LocalDateTime.now();
 
-            insertProductStatement = DataHandler.getPreparedStatement(INSERT_PRODUCTS,true);
-            insertOrganisationStatement = DataHandler.getPreparedStatement(INSERT_ORGANISATIONS, true);
-            insertLocationStatement = DataHandler.getPreparedStatement(INSERT_COORDINATES,true);
+            insertProductStatement = DataHandler.getPreparedStatement(INSERT_PRODUCTS,false);
+            insertOrganisationStatement = DataHandler.getPreparedStatement(INSERT_ORGANISATIONS, false);
+            insertLocationStatement = DataHandler.getPreparedStatement(INSERT_COORDINATES,false);
 
             insertProductStatement.setString(1, key);
-            insertProductStatement.setString(2,product.getName());
-            insertProductStatement.setTimestamp(3, Timestamp.valueOf(creationtime));
+            insertProductStatement.setString(2, product.getName());
+            insertProductStatement.setString(3, String.valueOf(Timestamp.valueOf(creationtime)));
             insertProductStatement.setString(4, product.getUnitOfMeasure().toString());
             insertProductStatement.setDouble(5, product.getCoordinates().getX());
             insertProductStatement.setInt(6, product.getCoordinates().getY());
             insertProductStatement.setFloat(7, product.getPrice());
             insertProductStatement.setLong(8, dataUserManager.getUserIdByUsername(user));
             if (insertProductStatement.executeUpdate() == 0) throw new SQLException();
-            ResultSet generatedChapterKeys = insertProductStatement.getGeneratedKeys();
-            long productId;
-            if (generatedChapterKeys.next()) {
-                productId = generatedChapterKeys.getLong(1);
-            } else throw new SQLException();
+            long productId = 1;
+            Statement s = DataHandler.getConnection().createStatement();
+            ResultSet rs = s.executeQuery("select count(*) from products");
+            if(rs.next()){
+            productId = rs.getInt(1);}
 
             insertOrganisationStatement.setString(1, product.getManufacturer().getName());
             insertOrganisationStatement.setString(2, product.getManufacturer().getFullName());
             insertOrganisationStatement.setString(3, product.getManufacturer().getType().toString());
             insertOrganisationStatement.setLong(4, productId);
             if (insertOrganisationStatement.executeUpdate() == 0) throw new SQLException();
-            ResultSet generatedMarineKeys = insertOrganisationStatement.getGeneratedKeys();
-            long orgId;
-            if (generatedMarineKeys.next()) {
-                orgId = generatedMarineKeys.getLong(1);
-            } else throw new SQLException();
+            long orgId = 1;
+            Statement st = DataHandler.getConnection().createStatement();
+            ResultSet rst = st.executeQuery("select count(*) from organisations");
+            if(rst.next()) {
+                orgId = rst.getInt(1);
+            }
 
             insertLocationStatement.setLong(1, orgId);
             insertLocationStatement.setString(2, product.getManufacturer().getPostalAddress().getStreet());
@@ -202,7 +212,7 @@ public class DataManager {
         return products;
     }
 
-    public void deleteProductByUserId(long userId) {
+    /*public void deleteProductByUserId(long userId) {
         PreparedStatement preparedDeleteChapterByIdStatement = null;
         try {
             preparedDeleteChapterByIdStatement = DataHandler.getPreparedStatement(DELETE_PRODUCTS_BY_ID, false);
@@ -214,7 +224,7 @@ public class DataManager {
         } finally {
             DataHandler.closePreparedStatement(preparedDeleteChapterByIdStatement);
         }
-    }
+    }*/
 
     public boolean checkForRoots(long productId, User user){
         PreparedStatement preparedCheckForRoots = null;
@@ -232,23 +242,23 @@ public class DataManager {
         return false;
     }
 
-    private long getProductIdByUserId(long userId) {
+    /*private long getProductIdByUserId(long userId) {
+        long productId;
         PreparedStatement preparedSelectProductIdByUserId = null;
         try{
-            preparedSelectProductIdByUserId = DataHandler.getPreparedStatement(SELECT_PRODUCTS_BY_ID_AND_USER_ID, false);
-            preparedSelectProductIdByUserId.setLong(1, productId);
-            preparedSelectProductIdByUserId.setLong(2, userId);
+            preparedSelectProductIdByUserId = DataHandler.getPreparedStatement(SELECT_USER_BY_ID, false);
+            preparedSelectProductIdByUserId.setLong(1, userId);
             ResultSet rs = preparedSelectProductIdByUserId.executeQuery();
             if(rs.next()){
-
+                productId = rs.getLong(DataHandler.)
             }
 
         }catch (SQLException e){
 
         }
-    }
+    }*/
 
-    /*public void updateProductById(long productId) {
+    /*public void updateProductById(long productId, Product newproduct) {
         PreparedStatement preparedUpdateProductNameByIdStatement = null;
         PreparedStatement preparedUpdateProductPriceByIdStatement = null;
         PreparedStatement preparedUpdateProductTypeByIdStatement = null;
@@ -272,12 +282,36 @@ public class DataManager {
             preparedUpdateCoordinatesByProductIdStatement = DataHandler.getPreparedStatement(UPDATE_COORDINATES_BY_ORGANISATION_ID, false);
             preparedUpdateOrganisationByProductIdStatement = DataHandler.getPreparedStatement(UPDATE_ORGANISATIONS_BY_PRODUCT_ID, false);
 
-            if (product.getName() != null) {
-                preparedUpdateProductNameByIdStatement.setString(1, marineRaw.getName());
-                preparedUpdateMarineNameByIdStatement.setLong(2, productId);
-                if (preparedUpdateMarineNameByIdStatement.executeUpdate() == 0) throw new SQLException();
-                System.out.println("Выполнен запрос UPDATE_PRODUCT_NAME_BY_ID.");
-            }
+
+            preparedUpdateProductNameByIdStatement.setString(1, newproduct.getName());
+            preparedUpdateProductNameByIdStatement.setLong(2, newproduct.getId());
+            if (preparedUpdateProductNameByIdStatement.executeUpdate() == 0) throw new SQLException();
+            System.out.println("Выполнен запрос UPDATE_PRODUCT_NAME_BY_ID.");
+
+            preparedUpdateProductPriceByIdStatement.setFloat(1, newproduct.getPrice());
+            preparedUpdateProductPriceByIdStatement.setLong(2, newproduct.getId());
+            if (preparedUpdateProductPriceByIdStatement.executeUpdate() == 0) throw new SQLException();
+            System.out.println("Выполнен запрос UPDATE_PRODUCT_NAME_BY_ID.");
+
+            preparedUpdateProductTypeByIdStatement.setString(1,newproduct.getUnitOfMeasure().toString());
+            preparedUpdateProductTypeByIdStatement.setLong(2, newproduct.getId());
+            if (preparedUpdateProductTypeByIdStatement.executeUpdate() == 0) throw new SQLException();
+            System.out.println("Выполнен запрос UPDATE_PRODUCT_NAME_BY_ID.");
+
+            preparedUpdateProductXByIdStatement.setDouble(1, newproduct.getCoordinates().getX());
+            preparedUpdateProductXByIdStatement.setLong(2, newproduct.getId());
+            if (preparedUpdateProductXByIdStatement.executeUpdate() == 0) throw new SQLException();
+            System.out.println("Выполнен запрос UPDATE_PRODUCT_NAME_BY_ID.");
+
+            preparedUpdateProductYByIdStatement.setInt(1, newproduct.getCoordinates().getY());
+            preparedUpdateProductYByIdStatement.setLong(2, newproduct.getId());
+            if (preparedUpdateProductYByIdStatement.executeUpdate() == 0) throw new SQLException();
+            System.out.println("Выполнен запрос UPDATE_PRODUCT_NAME_BY_ID.");
+
+            preparedUpdateOrganisationByProductIdStatement.
+            if (preparedUpdateMarineNameByIdStatement.executeUpdate() == 0) throw new SQLException();
+            System.out.println("Выполнен запрос UPDATE_PRODUCT_NAME_BY_ID.");
+
             if (marineRaw.getCoordinates() != null) {
                 preparedUpdateCoordinatesByMarineIdStatement.setDouble(1, marineRaw.getCoordinates().getX());
                 preparedUpdateCoordinatesByMarineIdStatement.setFloat(2, marineRaw.getCoordinates().getY());

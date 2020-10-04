@@ -23,7 +23,9 @@ public class CommandAdd implements Command, Preparable, Serializable {
 
     Product product;
     String key;
-    User user;
+
+    private String login;
+    private String password;
     private static final long serialVersionUID = 1337000000L;
 
     /**
@@ -38,11 +40,16 @@ public class CommandAdd implements Command, Preparable, Serializable {
             execute(args);
         }
         else {
+            User user = new User();
+            user.setUsername(login);
+            user.setPassword(password);
+
             DataHandler handler = new DataHandler();
             DataUserManager userManager = new DataUserManager(handler);
             DataManager manager = new DataManager(handler, userManager);
             if(userManager.checkUserByUsernameAndPassword(user)) {
                 try {
+                    product.setOwner(user);
                     manager.insertProduct(product, key, user);
                 } catch (SQLException e) {
                     e.printStackTrace();

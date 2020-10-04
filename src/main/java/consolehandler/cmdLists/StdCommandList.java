@@ -1,5 +1,6 @@
 package consolehandler.cmdLists;
 
+import BD.DataUserManager;
 import consolehandler.CommandController;
 import cmd.*;
 
@@ -20,7 +21,6 @@ public class StdCommandList implements CommandList {
         CommandHelp commandHelp = new CommandHelp();
         CommandInfo commandInfo = new CommandInfo();
         CommandClear commandClear = new CommandClear();
-        CommandSave commandSave = new CommandSave();
         CommandShow commandShow = new CommandShow();
         CommandAdd commandAdd = new CommandAdd();
         Commandmin_by_name commandMin = new Commandmin_by_name();
@@ -44,7 +44,6 @@ public class StdCommandList implements CommandList {
         commands.put("info", commandInfo);
         commands.put("group_counting_by_coordinates",commandgroup_counting_by_coordinates);
         commands.put("clear", commandClear);
-        commands.put("save", commandSave);
         commands.put("show", commandShow);
         commands.put("history", CommandController.getCommandHistory());
         commands.put("insert", commandAdd);

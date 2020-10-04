@@ -47,6 +47,7 @@ public class CommandController {
                 System.out.println("Invalid symbol sequence, enter correct command or enter help to get a list of commands...");
             }
         }
+
     }
 
     /**
