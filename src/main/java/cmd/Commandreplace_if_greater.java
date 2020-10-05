@@ -18,6 +18,9 @@ public class Commandreplace_if_greater implements Command,Preparable{
 
     private static final long serialVersionUID = 1337000014L;
 
+    private String password;
+    private String login;
+
     Product product = null;
     String key = null;
 

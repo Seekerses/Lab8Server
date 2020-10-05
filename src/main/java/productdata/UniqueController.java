@@ -44,4 +44,8 @@ public class UniqueController {
     public static Hashtable<String, Organization> getOrgTable(){
         return orgTable;
     }
+
+    public static void deleteRow(String fullname){
+        orgTable.remove(fullname);
+    }
 }

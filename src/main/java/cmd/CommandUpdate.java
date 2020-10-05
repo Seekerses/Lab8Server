@@ -17,6 +17,9 @@ import java.util.Map;
 
 public class CommandUpdate implements Command, Preparable{
 
+    private String password;
+    private String login;
+
     private static final long serialVersionUID = 1337000016L;
 
     /**

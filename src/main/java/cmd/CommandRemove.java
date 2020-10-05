@@ -9,6 +9,9 @@ import consolehandler.TableController;
 
 public class CommandRemove implements Command {
 
+    private String password;
+    private String login;
+
     private static final long serialVersionUID = 1337000012L;
 
     @Override
