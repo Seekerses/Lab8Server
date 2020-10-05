@@ -55,6 +55,7 @@ public class CommandAdd implements Command, Preparable, Serializable {
                     return ("Insertion complete...");
                 } catch (SQLException e) {
                     e.printStackTrace();
+                    return "Wrong input";
                 }
             }else{
                 return "You don't have rights to do it";

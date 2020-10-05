@@ -1,5 +1,9 @@
 package cmd;
+import BD.DataHandler;
+import BD.DataManager;
+import BD.DataUserManager;
 import consolehandler.TableController;
+import server.User;
 
 /**
  * removes element with given key
@@ -16,17 +20,28 @@ public class CommandRemove implements Command {
 
     @Override
     public String execute(String[] args) {
-        int count = 0;
-        for(String key : TableController.getCurrentTable().getKey()){
-            if(key.equals(args[0])){
-                count++;
+        User user = new User();
+        user.setPassword(password);
+        user.setUsername(login);
+        DataHandler handler = new DataHandler();
+        DataUserManager userManager = new DataUserManager(handler);
+        DataManager manager = new DataManager(handler, userManager);
+        if(userManager.checkUserByUsernameAndPassword(user)) {
+            int count = 0;
+            for (String key : TableController.getCurrentTable().getKey()) {
+                if (key.equals(args[0])) {
+                    count++;
+                }
             }
-        }
-        if(count==0){
-            return ("No such key\nAvailable keys: " + TableController.getCurrentTable().getKey());
+            if (count == 0) {
+                return ("No such key\nAvailable keys: " + TableController.getCurrentTable().getKey());
+            } else {
+                manager.deleteProductById(TableController.getCurrentTable().get(args[0]).getId());
+                TableController.getCurrentTable().loadCollection();
+                return ("Element has been removed.");
+            }
         }else{
-            TableController.getCurrentTable().remove(args[0]);
-            return ("Element has been removed.");
+            return "No rights to do it(";
         }
     }
 

@@ -1,11 +1,16 @@
 package cmd;
 
+import BD.DataHandler;
+import BD.DataManager;
+import BD.DataUserManager;
 import consolehandler.TableController;
 import productdata.Product;
 import productdata.ReaderProductBuilder;
+import server.User;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -32,31 +37,41 @@ public class CommandUpdate implements Command, Preparable{
 
     @Override
     public String execute(String[] args) {
-
-        if (product == null){
-            prepare(args);
-        }
-        else {
-            try {
-                if (args == null || args[0] == null) {
-                    return ("Please enter ID");
-                }
-                int counter = 0;
-                Iterator<Map.Entry<String, Product>> it = TableController.getCurrentTable().getSet().iterator();
-                int i = Integer.parseInt(args[0]);
-                while (it.hasNext()) {
-                    Map.Entry<String, Product> map = it.next();
-                    if (map.getValue().getId() == i) {
-                        counter++;
-                        TableController.getCurrentTable().replace(map.getKey(), product);
+        User user = new User();
+        user.setUsername(login);
+        user.setPassword(password);
+        DataHandler handler = new DataHandler();
+        DataUserManager userManager = new DataUserManager(handler);
+        DataManager manager = new DataManager(handler, userManager);
+        if(userManager.checkUserByUsernameAndPassword(user)) {
+            if (product == null) {
+                prepare(args);
+            } else {
+                try {
+                    if (args == null || args[0] == null) {
+                        return ("Please enter ID");
                     }
+                    int counter = 0;
+                    Iterator<Map.Entry<String, Product>> it = TableController.getCurrentTable().getSet().iterator();
+                    int i = Integer.parseInt(args[0]);
+                    while (it.hasNext()) {
+                        Map.Entry<String, Product> map = it.next();
+                        if (map.getValue().getId() == i) {
+                            counter++;
+                            manager.deleteProductById(i);
+                            manager.insertProduct(product, map.getKey(), user);
+                            TableController.getCurrentTable().loadCollection();
+                        }
+                    }
+                    if (counter == 0) {
+                        return ("There is no elements with that id.");
+                    }
+                } catch (NumberFormatException | SQLException e) {
+                    return ("Argument must be a number");
                 }
-                if (counter == 0) {
-                    return ("There is no elements with that id.");
-                }
-            } catch (NumberFormatException e) {
-                return ("Argument must be a number");
             }
+        }else{
+            return "You haven't got rights to do it(";
         }
         return "Element updated";
     }

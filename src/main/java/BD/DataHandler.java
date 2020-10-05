@@ -102,11 +102,11 @@ public class DataHandler {
             Statement sta = connection.createStatement();
             boolean rsa = sta.execute("CREATE TABLE IF NOT EXISTS locations (\n" +
                     "  id serial,\n" +
-                    "  organisation_id NUMERIC NOT NULL,\n" +
-                    "  street varchar(50) NOT NULL,\n" +
-                    "  x NUMERIC NOT NULL,\n" +
-                    "  y NUMERIC NOT NULL,\n" +
-                    "  z NUMERIC NOT NULL,\n" +
+                    "  organisation_id NUMERIC,\n" +
+                    "  street varchar(50),\n" +
+                    "  x NUMERIC NOT NULL ,\n" +
+                    "  y NUMERIC NOT NULL ,\n" +
+                    "  z NUMERIC NOT NULL ,\n" +
                     "  PRIMARY KEY (id)\n" +
                     ")");
             sta.close();
@@ -120,11 +120,12 @@ public class DataHandler {
             Statement state = connection.createStatement();
             boolean rsate = state.execute("CREATE TABLE IF NOT EXISTS organisations (\n" +
                     "  id serial,\n" +
-                    "  name varchar(50) NOT NULL,\n" +
-                    "  fullname varchar(50) NOT NULL,\n" +
-                    "  type varchar(50) NOT NULL,\n" +
-                    "  product_id NUMERIC NOT NULL,\n" +
-                    "  PRIMARY KEY (id)\n" +
+                    "  name varchar(50),\n" +
+                    "  fullname varchar(50),\n" +
+                    "  type varchar(50),\n" +
+                    "  product_id NUMERIC,\n" +
+                    "  PRIMARY KEY (id)\n," +
+                    "  UNIQUE (fullname)\n" +
                     ")");
             state.close();
         }catch (SQLException e){
