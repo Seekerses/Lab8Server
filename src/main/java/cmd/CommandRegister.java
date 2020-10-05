@@ -22,15 +22,15 @@ public class CommandRegister implements Command, Preparable, Registerable {
             if (manager.insertUser(user)) {
                 System.out.println("User " +
                         user.getUsername() + " has been registered.");
-                return "Approved";
+                return "Approved," + login + "," + password;
 
             }else{
-            return "User already registered. Try to log in";}
+            return "Existed," + login + "," + password;}
         }catch (Exception e){
             e.printStackTrace();
             System.out.println("Try again later...");
         }
-        return "Can't register you";
+        return "Wrong," + login + "," + password;
     }
 
     @Override

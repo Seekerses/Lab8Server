@@ -1,11 +1,16 @@
 package cmd;
+import BD.DataHandler;
+import BD.DataManager;
+import BD.DataUserManager;
 import consolehandler.Initializer;
 import consolehandler.TableController;
 import productdata.Product;
 import productdata.ReaderProductBuilder;
+import server.User;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -18,35 +23,48 @@ public class Commandreplace_if_greater implements Command,Preparable{
 
     private static final long serialVersionUID = 1337000014L;
 
+    private String password;
+    private String login;
+
     Product product = null;
     String key = null;
 
     @Override
     public String execute(String[] args) {
-        if (product == null || key == null){
-            prepare(args);
-            execute(args);
-        }else try {
-            int c = 0;
-            for (String key : TableController.getCurrentTable().getKey()) {
-                if (key.equals(args[0])) {
-                    c++;
-                }
-            }
-            if (c == 0) {
-                return ("No such key\nAvailable keys: " + TableController.getCurrentTable().getKey());
-            } else {
-                for (Map.Entry<String, Product> map : TableController.getCurrentTable().getSet()) {
-                    if (map.getKey().compareTo(args[0]) == 0) {
-                        if (product != null && product.getPrice() > map.getValue().getPrice()) {
-                            TableController.getCurrentTable().replace(map.getKey(), product);
-                        }
+        User user = new User();
+        user.setPassword(password);
+        user.setUsername(login);
+        DataHandler handler = new DataHandler();
+        DataUserManager userManager = new DataUserManager(handler);
+        DataManager manager = new DataManager(handler, userManager);
+        if(userManager.checkUserByUsernameAndPassword(user)) {
+            if (product == null || key == null) {
+                prepare(args);
+                execute(args);
+            } else try {
+                int c = 0;
+                for (String key : TableController.getCurrentTable().getKey()) {
+                    if (key.equals(args[0])) {
+                        c++;
                     }
                 }
-                return ("Element has been replaced");
+                if (c == 0) {
+                    return ("No such key\nAvailable keys: " + TableController.getCurrentTable().getKey());
+                } else {
+                    for (Map.Entry<String, Product> map : TableController.getCurrentTable().getSet()) {
+                        if (map.getKey().compareTo(args[0]) == 0) {
+                            if (product != null && product.getPrice() > map.getValue().getPrice()) {
+                                manager.deleteProductById(map.getValue().getId());
+                                manager.insertProduct(product, key, user);
+                                TableController.getCurrentTable().loadCollection();
+                            }
+                        }
+                    }
+                    return ("Element has been replaced");
+                }
+            } catch (NumberFormatException | SQLException e) {
+                return ("Argument must be a number");
             }
-        } catch (NumberFormatException e) {
-            return ("Argument must be a number");
         }
         return null;
     }

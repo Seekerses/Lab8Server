@@ -15,6 +15,8 @@ public class DataUserManager {
             " WHERE " + BD.DataHandler.USER_TABLE_ID_COLUMN + " = ?";
     private final String SELECT_USER_BY_USERNAME = "SELECT * FROM " + BD.DataHandler.USER_TABLE +
             " WHERE " + BD.DataHandler.USER_TABLE_USERNAME_COLUMN + " = ?";
+    private final String SELECT_USER_BY_PASSWORD = "SELECT * FROM " + BD.DataHandler.USER_TABLE +
+            " WHERE " + BD.DataHandler.USER_TABLE_PASSWORD_COLUMN + " = ?";
     private final String SELECT_USER_BY_USERNAME_AND_PASSWORD = SELECT_USER_BY_USERNAME + " AND " +
             BD.DataHandler.USER_TABLE_PASSWORD_COLUMN + " = ?";
     private final String INSERT_USER = "INSERT INTO " +
@@ -47,6 +49,38 @@ public class DataUserManager {
             DataHandler.closePreparedStatement(preparedSelectUserByIdStatement);
         }
         return user;
+    }
+
+    public boolean checkUserbyUsername(User user){
+        PreparedStatement preparedSelectUserByUsernameStatement = null;
+        try {
+            preparedSelectUserByUsernameStatement =
+                    DataHandler.getPreparedStatement(SELECT_USER_BY_USERNAME_AND_PASSWORD, false);
+            preparedSelectUserByUsernameStatement.setString(1, user.getUsername());
+            ResultSet resultSet = preparedSelectUserByUsernameStatement.executeQuery();
+            return resultSet.next();
+        } catch (SQLException exception) {
+            System.out.println("Произошла ошибка при выполнении запроса SELECT_USER_BY_USERNAME_AND_PASSWORD!");
+        } finally {
+            DataHandler.closePreparedStatement(preparedSelectUserByUsernameStatement);
+        }
+        return false;
+    }
+
+    public boolean checkUserbyPassword(User user){
+        PreparedStatement preparedSelectUserByPasswordStatement = null;
+        try {
+            preparedSelectUserByPasswordStatement =
+                    DataHandler.getPreparedStatement(SELECT_USER_BY_USERNAME_AND_PASSWORD, false);
+            preparedSelectUserByPasswordStatement.setString(1, PasswordHasher.hashPassword(user.getPassword()));
+            ResultSet resultSet = preparedSelectUserByPasswordStatement.executeQuery();
+            return resultSet.next();
+        } catch (SQLException exception) {
+            System.out.println("Произошла ошибка при выполнении запроса SELECT_USER_BY_USERNAME_AND_PASSWORD!");
+        } finally {
+            DataHandler.closePreparedStatement(preparedSelectUserByPasswordStatement);
+        }
+        return false;
     }
 
     public boolean checkUserByUsernameAndPassword(User user) {
