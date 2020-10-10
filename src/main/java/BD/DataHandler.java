@@ -1,8 +1,10 @@
 package BD;
 
+import consolehandler.TableController;
 import productdata.Product;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 
 public class DataHandler {
     // Table names
@@ -54,6 +56,10 @@ public class DataHandler {
             Class.forName(JDBC_DRIVER);
             connection = DriverManager.getConnection(url, user, password);
             System.out.println("Connect successful");
+            createTableUsers();
+            createTableProducts();
+            createTableOrganisations();
+            createTableLocations();
         } catch (SQLException | ClassNotFoundException exception) {
             System.out.println(exception);
         }

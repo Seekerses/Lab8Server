@@ -37,10 +37,7 @@ public class Main {
 
         DataHandler handler = new DataHandler();
         handler.connectToDataBase();
-        handler.createTableProducts();
-        handler.createTableUsers();
-        handler.createTableOrganisations();
-        handler.createTableLocations();
+
         CommandController cmd = new CommandController();
         cmd.start(new CommandInterpreter());
         System.out.println("Enter Command or Help to display a list of commands:");

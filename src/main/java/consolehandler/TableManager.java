@@ -190,7 +190,7 @@ public class TableManager {
      * Sets creation date of Table Manager
      * @param date new creation date
      */
-    void setCreationDate(LocalDateTime date){
+    public void setCreationDate(LocalDateTime date){
         ServerController.getScheduler().getCollectionLock().lock();
         try {
             Date = date;

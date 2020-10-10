@@ -36,9 +36,13 @@ public class CommandRemove implements Command {
             if (count == 0) {
                 return ("No such key\nAvailable keys: " + TableController.getCurrentTable().getKey());
             } else {
-                manager.deleteProductById(TableController.getCurrentTable().get(args[0]).getId());
-                TableController.getCurrentTable().loadCollection();
-                return ("Element has been removed.");
+                if(manager.checkForRoots(TableController.getCurrentTable().get(args[0]).getId(), user)) {
+                    manager.deleteProductById(TableController.getCurrentTable().get(args[0]).getId());
+                    TableController.getCurrentTable().loadCollection();
+                    return ("Element has been removed.");
+                }else{
+                    return "You have no rights to do it";
+                }
             }
         }else{
             return "No rights to do it(";
