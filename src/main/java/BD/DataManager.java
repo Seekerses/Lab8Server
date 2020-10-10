@@ -34,6 +34,17 @@ public class DataManager {
             BD.DataHandler.PRODUCTS_TABLE_Y_COLUMN + ", " +
             BD.DataHandler.PRODUCTS_TABLE_PRICE_COLUMN + ", " +
             BD.DataHandler.PRODUCTS_TABLE_USER_ID_COLUMN + ") VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?)";
+    private final String INSERT_PRODUCTS_WITH_ID = "INSERT INTO " +
+            BD.DataHandler.PRODUCTS_TABLE + " (" +
+            BD.DataHandler.PRODUCTS_TABLE_ID_COLUMN + ", " +
+            BD.DataHandler.PRODUCTS_TABLE_KEY_COLUMN + ", " +
+            BD.DataHandler.PRODUCTS_TABLE_NAME_COLUMN + ", " +
+            BD.DataHandler.PRODUCTS_TABLE_CREATION_DATE_COLUMN + ", " +
+            BD.DataHandler.PRODUCTS_TABLE_TYPE_COLUMN + ", " +
+            BD.DataHandler.PRODUCTS_TABLE_X_COLUMN + ", " +
+            BD.DataHandler.PRODUCTS_TABLE_Y_COLUMN + ", " +
+            BD.DataHandler.PRODUCTS_TABLE_PRICE_COLUMN + ", " +
+            BD.DataHandler.PRODUCTS_TABLE_USER_ID_COLUMN + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private final String DELETE_PRODUCTS_BY_USER_ID = "DELETE FROM " + BD.DataHandler.PRODUCTS_TABLE +
             " WHERE " + BD.DataHandler.PRODUCTS_TABLE_USER_ID_COLUMN + " = ?";
     private final String DELETE_PRODUCTS_BY_ID = "DELETE FROM " + BD.DataHandler.PRODUCTS_TABLE +
@@ -155,6 +166,69 @@ public class DataManager {
         return null;
     }
 
+    public void insertProduct(long id, Product product, String key, User user) throws SQLException {
+        PreparedStatement insertProductStatement = null;
+        PreparedStatement insertOrganisationStatement =null;
+        PreparedStatement insertLocationStatement = null;
+        DataHandler.setCommitMode();
+
+        try{
+            DataHandler.setSavepoint();
+
+            LocalDateTime creationtime = LocalDateTime.now();
+
+            insertProductStatement = DataHandler.getPreparedStatement(INSERT_PRODUCTS,false);
+            insertOrganisationStatement = DataHandler.getPreparedStatement(INSERT_ORGANISATIONS, false);
+            insertLocationStatement = DataHandler.getPreparedStatement(INSERT_COORDINATES,false);
+
+            insertProductStatement.setLong(1, id);
+            insertProductStatement.setString(2, key);
+            insertProductStatement.setString(3, product.getName());
+            insertProductStatement.setString(4, String.valueOf(Timestamp.valueOf(creationtime)));
+            insertProductStatement.setString(5, product.getUnitOfMeasure().toString());
+            insertProductStatement.setDouble(6, product.getCoordinates().getX());
+            insertProductStatement.setInt(7, product.getCoordinates().getY());
+            insertProductStatement.setFloat(8, product.getPrice());
+            insertProductStatement.setLong(9, dataUserManager.getUserIdByUsername(user));
+            if (insertProductStatement.executeUpdate() == 0) throw new SQLException();
+            long productId = 1;
+            Statement s = DataHandler.getConnection().createStatement();
+            ResultSet rs = s.executeQuery("select * from products");
+            while(rs.next()){
+                productId = rs.getInt(1);}
+
+            if(product.getManufacturer()!=null) {
+                insertOrganisationStatement.setString(1, product.getManufacturer().getName());
+                insertOrganisationStatement.setString(2, product.getManufacturer().getFullName());
+                insertOrganisationStatement.setString(3, product.getManufacturer().getType().toString());
+                insertOrganisationStatement.setLong(4, productId);
+                if (insertOrganisationStatement.executeUpdate() == 0) throw new SQLException();
+                long orgId = 1;
+                Statement st = DataHandler.getConnection().createStatement();
+                ResultSet rst = st.executeQuery("select * from organisations");
+                while (rst.next()) {
+                    orgId = rst.getInt(1);
+                }
+
+                insertLocationStatement.setLong(1, orgId);
+                insertLocationStatement.setString(2, product.getManufacturer().getPostalAddress().getStreet());
+                insertLocationStatement.setDouble(3, product.getManufacturer().getPostalAddress().getTown().getX());
+                insertLocationStatement.setInt(4, product.getManufacturer().getPostalAddress().getTown().getY());
+                insertLocationStatement.setLong(5, product.getManufacturer().getPostalAddress().getTown().getZ());
+                if (insertLocationStatement.executeUpdate() == 0) throw new SQLException();
+            }
+            DataHandler.commit();
+        } catch (SQLException e) {
+            DataHandler.rollback();
+            e.printStackTrace();
+        } finally {
+            DataHandler.closePreparedStatement(insertLocationStatement);
+            DataHandler.closePreparedStatement(insertOrganisationStatement);
+            DataHandler.closePreparedStatement(insertProductStatement);
+            DataHandler.setNormalMode();
+        }
+    }
+
     public void insertProduct(Product product, String key, User user) throws SQLException {
         PreparedStatement insertProductStatement = null;
         PreparedStatement insertOrganisationStatement =null;
@@ -181,8 +255,8 @@ public class DataManager {
             if (insertProductStatement.executeUpdate() == 0) throw new SQLException();
             long productId = 1;
             Statement s = DataHandler.getConnection().createStatement();
-            ResultSet rs = s.executeQuery("select count(*) from products");
-            if(rs.next()){
+            ResultSet rs = s.executeQuery("select * from products");
+            while(rs.next()){
             productId = rs.getInt(1);}
 
             if(product.getManufacturer()!=null) {
@@ -193,8 +267,8 @@ public class DataManager {
                 if (insertOrganisationStatement.executeUpdate() == 0) throw new SQLException();
                 long orgId = 1;
                 Statement st = DataHandler.getConnection().createStatement();
-                ResultSet rst = st.executeQuery("select count(*) from organisations");
-                if (rst.next()) {
+                ResultSet rst = st.executeQuery("select * from organisations");
+                while (rst.next()) {
                     orgId = rst.getInt(1);
                 }
 

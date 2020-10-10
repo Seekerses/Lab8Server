@@ -74,7 +74,7 @@ public class DataHandler {
                     "  name varchar(50) NOT NULL,\n" +
                     "  creation_time varchar(50) NOT NULL,\n" +
                     "  product_unitofmeasure varchar(50) NOT NULL,\n" +
-                    "  price NUMERIC NOT NULL,\n" +
+                    "  price NUMERIC ,\n" +
                     "  x_coordinate NUMERIC NOT NULL,\n" +
                     "  y_coordinate NUMERIC NOT NULL,\n" +
                     "  user_id NUMERIC NOT NULL,\n" +
