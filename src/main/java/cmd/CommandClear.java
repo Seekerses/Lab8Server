@@ -1,7 +1,5 @@
 package cmd;
-import BD.DataHandler;
-import BD.DataManager;
-import BD.DataUserManager;
+import BD.*;
 import consolehandler.TableController;
 import server.User;
 
@@ -32,11 +30,10 @@ public class CommandClear implements Command {
                 user.setPassword(password);
                 user.setUsername(login);
                 DataHandler handler = new DataHandler();
-                DataUserManager userManager = new DataUserManager(handler);
+                BD.DataUserManager userManager = new DataUserManager(handler);
                 DataManager manager = new DataManager(handler,userManager);
                 if(userManager.checkUserByUsernameAndPassword(user)) {
                     manager.deleteProductByUser(user);
-                    TableController.getCurrentTable().loadCollection();
                     return ("Your Collection has been cleared.");
                 }else{
                     return "You don't have rights to do it";

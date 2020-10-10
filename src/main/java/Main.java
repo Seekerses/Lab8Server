@@ -1,19 +1,17 @@
 
 import BD.DataHandler;
-import BD.DataManager;
-import BD.DataUserManager;
 import consolehandler.*;
 import server.ServerController;
 import server.ServerScheduler;
 
 import java.io.*;
+import org.postgresql.Driver;
 import java.sql.SQLException;
-import java.util.Scanner;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.jar.JarFile;
 
 public class Main {
 
-    public static void main(String[] args) throws InterruptedException, SQLException {
+    public static void main(String[] args) throws InterruptedException, SQLException{
         ServerController.connect();
         ServerController.setScheduler(new ServerScheduler(5,5));
         Thread initiateThread = new Thread(ServerController.getScheduler());
@@ -37,7 +35,7 @@ public class Main {
 
         DataHandler handler = new DataHandler();
         handler.connectToDataBase();
-
+        prodTable.loadCollection();
         CommandController cmd = new CommandController();
         cmd.start(new CommandInterpreter());
         System.out.println("Enter Command or Help to display a list of commands:");

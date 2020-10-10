@@ -38,7 +38,6 @@ public class CommandRemove implements Command {
             } else {
                 if(manager.checkForRoots(TableController.getCurrentTable().get(args[0]).getId(), user)) {
                     manager.deleteProductById(TableController.getCurrentTable().get(args[0]).getId());
-                    TableController.getCurrentTable().loadCollection();
                     return ("Element has been removed.");
                 }else{
                     return "You have no rights to do it";

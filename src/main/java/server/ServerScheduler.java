@@ -63,7 +63,8 @@ public class ServerScheduler implements Runnable{
                     channelLock.lock();
                     DatagramChannel channel = availableChannels.poll();
                     channelLock.unlock();
-                    listeners.submit(new Receiver(clients.poll(),channel));
+                    InetSocketAddress client = clients.poll();
+                    listeners.submit(new Receiver(client,channel));
                 }
                 if (requests.size() != 0) {
                     handlers.submit(new RequestHandler(requests.poll()));

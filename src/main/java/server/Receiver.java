@@ -4,6 +4,7 @@ import clientserverdata.Request;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.util.Arrays;
@@ -24,35 +25,38 @@ class Receiver implements Runnable {
         ByteBuffer buf = ByteBuffer.allocate(1024); //buffer for coming bytes
         byte[] clear = new byte[1024]; //std buffer for "everything OK" reply
         byte[] done = new byte[1024]; //std buffer for exchanging done reply
-        byte[] bad = new byte[1024]; //std buffer for "something went wrong" reply
 
         clear[0] = 111; // Ok signal
-        bad[0] = 22; // Error signal
         done[0] = 33; // Done signal
 
         byte[] result = new byte[0];
-        byte[] assist = new byte[1024];
+
+        try {
+            channel.send(ByteBuffer.wrap(done), channel.getRemoteAddress());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         try {
             while (true) {
 
+                buf.clear();
                 channel.receive(buf);
-
+                if(buf.position() > 0) {
                     if (Arrays.equals(buf.array(), done)) { //when a "exchanging done" received
+                        channel.send(ByteBuffer.wrap(clear), channel.getRemoteAddress());
                         return result;
                     }
-                    if (PacketUtils.checkHash(buf.array())) {
+                    else {
                         channel.send(ByteBuffer.wrap(clear), channel.getRemoteAddress());
-                        if (!Arrays.equals(assist,buf.array())) {
-                            result = PacketUtils.merge(result, Arrays.copyOfRange(buf.array(), 0, 1012));
-                            assist = Arrays.copyOf(buf.array(),1024);
-                        }
-                    } else { //when received a broken packet(deprecated func)
-                        channel.send(ByteBuffer.wrap(bad), channel.getRemoteAddress());
+                        result = PacketUtils.merge(result, buf.array());
                     }
-                    buf.clear();
+                }
             }
-        } catch(IOException e){
+        }catch (SocketTimeoutException ex){
+            System.out.println("Client " + client + " not responding." );
+        }
+        catch(IOException e){
             System.out.println("Error in IO while receiving message");
         }
         return null;
@@ -72,7 +76,7 @@ class Receiver implements Runnable {
             System.out.println("Oh,no. Something went wrong!");
         }
         catch (NullPointerException ex){
-            System.out.println("Listeners are empty! " + Thread.currentThread().getName());
+            System.out.println("Listeners are empty! ");
         }
 
         finally {
@@ -83,7 +87,6 @@ class Receiver implements Runnable {
             }
             ServerController.getScheduler().getAvailableChannels().add(channel);
         }
-
-        ServerController.getScheduler().getRequests().add(request);
+        if(request != null) ServerController.getScheduler().getRequests().add(request);
     }
 }

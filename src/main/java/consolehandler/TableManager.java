@@ -13,7 +13,7 @@ import java.util.*;
  * Class that works with one concrete Hashtable of Products
  */
 public class TableManager {
-    private DataManager databaseManager;
+    private DataManager BDaseManager;
     private DataHandler dataHandler;
     private DataUserManager userManager;
     /**
@@ -212,11 +212,10 @@ public class TableManager {
         try {
             dataHandler = new DataHandler();
             userManager = new DataUserManager(dataHandler);
-            databaseManager = new DataManager(dataHandler, userManager);
-            table = databaseManager.getCollection();
-            System.out.println("Коллекция загружена.");
+            BDaseManager = new DataManager(dataHandler, userManager);
+            table = BDaseManager.getCollection();
         } catch (Exception exception) {
-            System.out.println("Коллекция не может быть загружена!");
+            System.out.println("Collection is not loaded!");
         }
     }
 

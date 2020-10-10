@@ -51,7 +51,6 @@ public class CommandAdd implements Command, Preparable, Serializable {
                 try {
                     product.setOwner(user);
                     manager.insertProduct(product, key, user);
-                    TableController.getCurrentTable().loadCollection();
                     return ("Insertion complete...");
                 } catch (SQLException e) {
                     e.printStackTrace();

@@ -12,7 +12,7 @@ repositories {
 }
 
 dependencies {
-    compile files('C:\\postgresql.jar')
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
@@ -20,6 +20,7 @@ jar {
     manifest {
         attributes('Implementation-Title': project.name,
                 'Implementation-Version': project.version,
-                'Main-Class': 'Main')
+                'Main-Class': 'Main',
+                'Class-Path': configurations.runtimeClasspath.files.collect {'JDBC/lala.jar'})
     }
 }

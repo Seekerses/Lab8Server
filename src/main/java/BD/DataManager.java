@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class DataManager {
     // PRODUCTS_TABLE
@@ -95,14 +96,17 @@ public class DataManager {
 
     private DataHandler DataHandler;
     private DataUserManager dataUserManager;
+    private ReentrantLock lock;
 
     public DataManager(DataHandler DataHandler, DataUserManager userManager) {
         this.DataHandler = DataHandler;
         this.dataUserManager = userManager;
+        this.lock = new ReentrantLock();
     }
 
     private Product createProduct(ResultSet resultSet, Map<Long, Organization> organizationMap) throws SQLException, NegativePrice, NotUniqueFullName, TooLargeFullName, InvalidYCoordinate {
         try {
+            lock.lock();
             long id = resultSet.getLong("id");
             String name = resultSet.getString(BD.DataHandler.PRODUCTS_TABLE_NAME_COLUMN);
             LocalDateTime creationDate = resultSet.getTimestamp(BD.DataHandler.PRODUCTS_TABLE_CREATION_DATE_COLUMN).toLocalDateTime();
@@ -125,11 +129,15 @@ public class DataManager {
         }catch (SQLException e){
             e.printStackTrace();
         }
+        finally {
+            lock.unlock();
+        }
         return null;
     }
 
     private Organization createOrganisation(ResultSet resultSet, Map<Integer, Address> addressMap){
         try {
+            lock.lock();
             int org_id = resultSet.getInt(BD.DataHandler.ORGANISATIONS_TABLE_ID_COLUMN);
             String org_name = resultSet.getString(BD.DataHandler.ORGANISATIONS_TABLE_NAME_COLUMN);
             String org_fname = resultSet.getString("fullname");
@@ -149,11 +157,15 @@ public class DataManager {
         }catch (NotUniqueFullName e){
             System.out.println("Not unique full name");
         }
+        finally {
+            lock.unlock();
+        }
         return null;
     }
 
     private Address createLocation(ResultSet resultSet) {
         try {
+            lock.lock();
             String street = resultSet.getString(BD.DataHandler.COORDINATES_TABLE_STREET_COLUMN);
             long x = resultSet.getLong(BD.DataHandler.COORDINATES_TABLE_X_COLUMN);
             int y = resultSet.getInt(BD.DataHandler.COORDINATES_TABLE_Y_COLUMN);
@@ -162,6 +174,9 @@ public class DataManager {
             return new Address(street, loc);
         }catch (SQLException e){
             e.printStackTrace();
+        }
+        finally {
+            lock.unlock();
         }
         return null;
     }
@@ -236,6 +251,7 @@ public class DataManager {
         DataHandler.setCommitMode();
 
         try{
+            lock.lock();
             DataHandler.setSavepoint();
 
             LocalDateTime creationtime = LocalDateTime.now();
@@ -288,6 +304,7 @@ public class DataManager {
             DataHandler.closePreparedStatement(insertOrganisationStatement);
             DataHandler.closePreparedStatement(insertProductStatement);
             DataHandler.setNormalMode();
+            lock.unlock();
         }
     }
 
@@ -299,6 +316,7 @@ public class DataManager {
         PreparedStatement preparedSelectAllOrganisations = null;
         PreparedStatement preparedSelectAllLocations = null;
         try {
+            lock.lock();
             preparedSelectAllProducts = DataHandler.getPreparedStatement(SELECT_ALL_PRODUCTS, false);
             preparedSelectAllOrganisations = DataHandler.getPreparedStatement(SELECT_ALL_ORGANISATIONS,false);
             preparedSelectAllLocations = DataHandler.getPreparedStatement(SELECT_ALL_COORDINATES,false);
@@ -332,6 +350,7 @@ public class DataManager {
         } catch (NotUniqueFullName | NegativePrice | TooLargeFullName | InvalidYCoordinate notUniqueFullName) {
             notUniqueFullName.printStackTrace();
         } finally {
+            lock.unlock();
             DataHandler.closePreparedStatement(preparedSelectAllProducts);
             DataHandler.closePreparedStatement(preparedSelectAllLocations);
             DataHandler.closePreparedStatement(preparedSelectAllOrganisations);
@@ -346,6 +365,7 @@ public class DataManager {
         PreparedStatement preparedSelectOrganisationsByProductId = null;
         PreparedStatement preparedDeleteLocationByOrganisationId = null;
         try {
+            lock.lock();
             DataHandler.setCommitMode();
             DataHandler.setSavepoint();
             ArrayList<Long> ids = new ArrayList<>();
@@ -388,12 +408,12 @@ public class DataManager {
             }
             DataHandler.commit();
 
-            System.out.println("Выполнен запрос DELETE_PRODUCTS_BY_ID.");
         } catch (SQLException exception) {
             exception.printStackTrace();
             DataHandler.rollback();
-            System.out.println("Произошла ошибка при выполнении запроса DELETE_PRODUCTS_BY_USER_ID!");
+            System.out.println("ERROR IN DELETE_PRODUCTS_BY_USER_ID!");
         } finally {
+            lock.unlock();
             DataHandler.setNormalMode();
             DataHandler.closePreparedStatement(preparedSelectProductByUser);
             DataHandler.closePreparedStatement(preparedDeleteProductByUser);
@@ -404,6 +424,7 @@ public class DataManager {
     public boolean checkForRoots(long productId, User user){
         PreparedStatement preparedCheckForRoots = null;
         try{
+            lock.lock();
             preparedCheckForRoots = DataHandler.getPreparedStatement(SELECT_PRODUCTS_BY_ID_AND_USER_ID, false);
             preparedCheckForRoots.setLong(1, productId);
             preparedCheckForRoots.setLong(2, dataUserManager.getUserIdByUsername(user));
@@ -414,6 +435,7 @@ public class DataManager {
         }catch (SQLException e){
             System.out.println("Problema v BD a ne vo mne");
         }finally {
+            lock.unlock();
             DataHandler.closePreparedStatement(preparedCheckForRoots);
         }
         return false;
@@ -422,6 +444,7 @@ public class DataManager {
     public Product getProduct(long productid){
         PreparedStatement preparedStatement = null;
         try {
+            lock.lock();
             preparedStatement = DataHandler.getPreparedStatement(SELECT_PRODUCTS_BY_ID, false);
             preparedStatement.setLong(1, productid);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -449,6 +472,7 @@ public class DataManager {
         }catch (SQLException | InvalidYCoordinate | NegativePrice e){
             e.printStackTrace();
         }finally {
+            lock.unlock();
             DataHandler.closePreparedStatement(preparedStatement);
         }
         return null;
@@ -460,6 +484,7 @@ public class DataManager {
         PreparedStatement preparedDeleteLocationByOrgId = null;
         PreparedStatement preparedSelectOrgByProdId = null;
         try{
+            lock.lock();
             preparedDeleteProductById = DataHandler.getPreparedStatement(DELETE_PRODUCTS_BY_ID, false);
             preparedDeleteProductById.setLong(1, id);
             if(preparedDeleteProductById.executeUpdate() == 0) throw new SQLException();
@@ -480,6 +505,7 @@ public class DataManager {
         } catch (SQLException e) {
             e.printStackTrace();
         }finally {
+            lock.unlock();
             DataHandler.closePreparedStatement(preparedDeleteProductById);
             DataHandler.closePreparedStatement(preparedDeleteLocationByOrgId);
             DataHandler.closePreparedStatement(preparedDeleteOrganisationByProductId);

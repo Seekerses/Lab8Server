@@ -56,7 +56,6 @@ public class Commandreplace_if_greater implements Command,Preparable{
                             if (product != null && product.getPrice() > map.getValue().getPrice()) {
                                 manager.deleteProductById(map.getValue().getId());
                                 manager.insertProduct(product, key, user);
-                                TableController.getCurrentTable().loadCollection();
                             }
                         }
                     }

@@ -36,6 +36,7 @@ class RequestHandler implements Runnable {
             System.out.print("IO exception");
         }
         catch (NullPointerException ex){
+            ex.printStackTrace();
             System.out.print("Failed to handle a command.");
         }
 
@@ -45,7 +46,10 @@ class RequestHandler implements Runnable {
     @Override
     public void run() {
         try {
-            ServerController.getScheduler().getReplays().add(handleRequest(this.request));
+            Reply reply = handleRequest(this.request);
+            if (reply != null) {
+                ServerController.getScheduler().getReplays().add(reply);
+            }
         } catch (NullPointerException e){
             System.out.println("Request list is empty!");
         }

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Scanner;
 
@@ -24,12 +25,22 @@ public class ServerController {
         System.out.println("Server awaiting connections...\n");
 
         ByteBuffer buf = ByteBuffer.allocate(1024);
+        byte[] ok = new byte[1024];
+        ok[0] = 1;
+        ok[1023] = 1;
         while (isUp){
 
             buf.clear();
             SocketAddress clientAddr = channel.receive(buf);
 
             if (checkConnection(buf) && clientAddr != null) {
+                buf.clear();
+                buf.put(ok);
+                buf.flip();
+                channel.send(buf, clientAddr);
+            }
+
+            if(checkRequest(buf) && clientAddr != null){
                 scheduler.getClients().add((InetSocketAddress) clientAddr);
             }
         }
@@ -72,9 +83,15 @@ public class ServerController {
         return (arr[0] == 1) && (arr[1023] == 1);
     }
 
+    private static boolean checkRequest(ByteBuffer buffer){
+        byte[] arr = buffer.array();
+        return (arr[0] == 100) && (arr[1023] == 100);
+    }
+
     private static void setPort(){
         System.out.print("Please enter a port that you want bind to:\n>");
         while (true){
+            try {
                 Scanner scanner = new Scanner(System.in);
                 String numb = scanner.nextLine();
                 System.out.println("----");
@@ -82,12 +99,16 @@ public class ServerController {
                     if (Integer.parseInt(numb) < 65535) {
                         port = Integer.parseInt(numb);
                         return;
-                    }else {
+                    } else {
                         System.out.println("Unexpectedly port number, please, enter correct port number:");
                     }
-                }else {
+                } else {
                     System.out.println("Unexpectedly port number, please, enter correct port number:");
                 }
+            }catch (Exception ex){
+                System.out.println("Wrong symbol sequence.");
+                setPort();
+            }
         }
     }
 

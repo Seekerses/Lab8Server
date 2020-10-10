@@ -4,8 +4,6 @@ import BD.DataHandler;
 import BD.DataUserManager;
 import server.User;
 
-import javax.imageio.spi.RegisterableService;
-import java.io.IOException;
 import java.util.Scanner;
 
 public class CommandLogin implements Command, Preparable, Registerable {

@@ -3,6 +3,7 @@ package server;
 import clientserverdata.Reply;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.util.Arrays;
@@ -30,41 +31,42 @@ class Sender implements Runnable{
 
                 while(!last) {
 
-                    if (data.length > 1012) {
-                        buffer.put(PacketUtils.formatData(Arrays.copyOfRange(data, 0, 1012)));
+                    buffer.clear();
+                    if (data.length > 1024) {
+                        buffer.put(Arrays.copyOfRange(data, 0, 1024));
                     }
                     else {
-                        buffer.put(PacketUtils.formatData(Arrays.copyOf(data,1012)));
+                        buffer.put(Arrays.copyOf(data,1024));
                         last = true;
                     }
 
                     buffer.flip();
                     channel.send(buffer,channel.getRemoteAddress());
 
-
-                    channel.receive(handle);
-                    while (handle.array()[0] != 111 && handle.array()[0] != 22 && Arrays.equals(handle.array(), new byte[1024])){
-                        channel.receive(handle);
-                    }
-
+                    handle = PacketUtils.getResponse(channel);
                     if ( handle.array()[0] == 111 ){
-                        if ( data.length > 1012 ) {
-                            data = Arrays.copyOfRange(data, 1012, data.length);
+                        if ( data.length > 1024) {
+                            data = Arrays.copyOfRange(data, 1024, data.length);
                         }
                     }
                     else {
                         last = false;
                     }
-
-                    buffer.clear();
-                    handle.clear();
                 }
-                buffer.put(done);
-                buffer.flip();
-                channel.send(buffer,channel.getRemoteAddress());
-                buffer.clear();
+
+                handle.put(new byte[1024]);
+                while( handle.array()[0] != 111 ) {
+                    buffer.clear();
+                    buffer.put(done);
+                    buffer.flip();
+                    channel.send(buffer, channel.getRemoteAddress());
+
+                    handle = PacketUtils.getResponse(channel);
+                }
+            }catch (SocketTimeoutException ex){
+                System.out.println("Client " + reply.getAddress() + " not responding." );
             }
-            catch (IOException e){
+            catch (IOException | InterruptedException e){
                 System.out.println("Oh, no. IO errors while sending reply!");
             }
         }
@@ -73,20 +75,21 @@ class Sender implements Runnable{
     public void run() {
         try {
             channel.connect(reply.getAddress());
+            send(Serializer.serialize(reply));
         } catch (IOException e) {
             System.out.println("Failing in connection to remote address.");
         }
         catch (NullPointerException e){
             System.out.println("Empty address of reply!");
         }
+        finally {
+            try {
+                channel.disconnect();
+                ServerController.getScheduler().availableChannels.add(channel);
+            } catch (IOException e) {
+                System.out.println("Failing while disconnect from remote address.");
+            }
 
-        send(Serializer.serialize(reply));
-        try {
-            channel.disconnect();
-        } catch (IOException e) {
-            System.out.println("Failing while disconnect from remote address.");
-        }
-
-        ServerController.getScheduler().availableChannels.add(channel);
+            }
     }
 }

@@ -55,11 +55,11 @@ public class DataHandler {
         try {
             Class.forName(JDBC_DRIVER);
             connection = DriverManager.getConnection(url, user, password);
-            System.out.println("Connect successful");
             createTableUsers();
             createTableProducts();
             createTableOrganisations();
             createTableLocations();
+            new Thread(new ChangeObserver(connection)).start();
         } catch (SQLException | ClassNotFoundException exception) {
             System.out.println(exception);
         }
@@ -166,9 +166,8 @@ public class DataHandler {
         if (sqlStatement == null) return;
         try {
             sqlStatement.close();
-            System.out.println("Закрыт SQL запрос '" + sqlStatement + "'.");
         } catch (SQLException exception) {
-            System.out.println("Произошла ошибка при закрытии SQL запроса '" + sqlStatement + "'.");
+            System.out.println("Error while closing statement");
         }
     }
 

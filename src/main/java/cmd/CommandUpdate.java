@@ -60,8 +60,7 @@ public class CommandUpdate implements Command, Preparable{
                             counter++;
                             if(manager.checkForRoots(i, user)) {
                                 manager.deleteProductById(i);
-                                manager.insertProduct(i, product, map.getKey(), user);
-                                TableController.getCurrentTable().loadCollection();
+                                manager.insertProduct(product, map.getKey(), user);
                             }else{
                                 return "You are not product owner";
                             }

@@ -1,11 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="postgres@localhost" uuid="35cb3913-1152-4d38-b5b8-b133c63c7419">
+    <data-source source="LOCAL" name="postgres@localhost [2]" uuid="4cbeb61a-7793-4a2e-8142-52284d443abf">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
       <jdbc-url>jdbc:postgresql://localhost:5432/postgres</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="kaka@DESKTOP-QU2UMOI" uuid="3bfc0bfe-4530-4ba9-aee0-cbfe7af7a1f3">
+      <driver-ref>sqlserver.ms</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</jdbc-driver>
+      <jdbc-url>jdbc:sqlserver://DESKTOP-QU2UMOI\SQLEXPRESS;database=kaka</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="User Data Source -" uuid="38a20142-e509-45a5-8409-7fa85be41802">
+      <synchronize>true</synchronize>
+      <configured-by-url>true</configured-by-url>
+      <jdbc-driver>java.sql.Driver</jdbc-driver>
     </data-source>
   </component>
 </project>

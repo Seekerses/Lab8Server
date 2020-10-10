@@ -7,7 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * A manager of user database.
+ * A manager of user BDase.
  */
 public class DataUserManager {
     // USER_TABLE
