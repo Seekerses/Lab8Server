@@ -4,7 +4,6 @@ import exceptions.InvalidYCoordinate;
 import exceptions.NegativePrice;
 import exceptions.NotUniqueFullName;
 import exceptions.TooLargeFullName;
-import org.postgresql.util.PSQLException;
 import productdata.*;
 import server.User;
 
@@ -16,9 +15,6 @@ import java.util.Hashtable;
 import java.util.Map;
 
 public class DataManager {
-    private static final String SELECT_USER_BY_ID = "SELECT * FROM " + BD.DataHandler.USER_TABLE + " WHERE " +
-            BD.DataHandler.USER_TABLE_ID_COLUMN + " = ?";
-
     // PRODUCTS_TABLE
     private final String SELECT_ALL_PRODUCTS = "SELECT * FROM " + BD.DataHandler.PRODUCTS_TABLE;
     private final String SELECT_ALL_PRODUCTS_BY_USER_ID = "SELECT * FROM " + BD.DataHandler.PRODUCTS_TABLE + " WHERE " +
@@ -128,16 +124,19 @@ public class DataManager {
             String org_fname = resultSet.getString("fullname");
             OrganizationType org_type = OrganizationType.valueOf(resultSet.getString(BD.DataHandler.ORGANISATIONS_TABLE_TYPE_COLUMN));
             UniqueController.deleteRow(org_fname);
-            Organization organisation = new Organization(
+            return new Organization(
                     org_id,
                     org_name,
                     org_fname,
                     org_type,
                     addressMap.get(org_id)
                     );
-            return organisation;
-        }catch (SQLException | TooLargeFullName | NotUniqueFullName e){
-            e.printStackTrace();
+        }catch (SQLException e){
+            System.out.println("Nothing to put in");
+        }catch (TooLargeFullName e){
+            System.out.println("Too large full name");
+        }catch (NotUniqueFullName e){
+            System.out.println("Not unique full name");
         }
         return null;
     }
@@ -149,15 +148,14 @@ public class DataManager {
             int y = resultSet.getInt(BD.DataHandler.COORDINATES_TABLE_Y_COLUMN);
             long z = resultSet.getLong(BD.DataHandler.COORDINATES_TABLE_Z_COLUMN);
             Location loc = new Location(x, y, z);
-            Address adr = new Address(street, loc);
-            return adr;
+            return new Address(street, loc);
         }catch (SQLException e){
             e.printStackTrace();
         }
         return null;
     }
 
-    public boolean insertProduct(Product product, String key, User user) throws SQLException {
+    public void insertProduct(Product product, String key, User user) throws SQLException {
         PreparedStatement insertProductStatement = null;
         PreparedStatement insertOrganisationStatement =null;
         PreparedStatement insertLocationStatement = null;
@@ -208,7 +206,6 @@ public class DataManager {
                 if (insertLocationStatement.executeUpdate() == 0) throw new SQLException();
             }
             DataHandler.commit();
-            return true;
         } catch (SQLException e) {
             DataHandler.rollback();
             e.printStackTrace();
@@ -218,7 +215,6 @@ public class DataManager {
             DataHandler.closePreparedStatement(insertProductStatement);
             DataHandler.setNormalMode();
         }
-        return false;
     }
 
     public Hashtable<String,Product> getCollection(){
@@ -235,7 +231,6 @@ public class DataManager {
             ResultSet resultSet = preparedSelectAllLocations.executeQuery();
             while (resultSet.next()) {
                 Address adr = createLocation(resultSet);
-                assert adr != null;
                 addressMap.put(resultSet.getInt("organisation_id"),adr);
             }
             DataHandler.closePreparedStatement(preparedSelectAllLocations);
@@ -260,13 +255,7 @@ public class DataManager {
             resultSet1.close();
         } catch (SQLException exception) {
             System.out.println("Something went wrong with BD");
-        } catch (NotUniqueFullName notUniqueFullName) {
-            notUniqueFullName.printStackTrace();
-        } catch (InvalidYCoordinate notUniqueFullName) {
-            notUniqueFullName.printStackTrace();
-        } catch (TooLargeFullName notUniqueFullName) {
-            notUniqueFullName.printStackTrace();
-        } catch (NegativePrice notUniqueFullName) {
+        } catch (NotUniqueFullName | NegativePrice | TooLargeFullName | InvalidYCoordinate notUniqueFullName) {
             notUniqueFullName.printStackTrace();
         } finally {
             DataHandler.closePreparedStatement(preparedSelectAllProducts);
@@ -291,6 +280,7 @@ public class DataManager {
             ResultSet rs = preparedSelectProductByUser.executeQuery();
             while (rs.next()){
                 ids.add(rs.getLong("id"));
+                System.out.println(rs.getLong("id"));
             }
             preparedDeleteProductByUser = DataHandler.getPreparedStatement(DELETE_PRODUCTS_BY_USER_ID, false);
             preparedDeleteProductByUser.setLong(1, dataUserManager.getUserIdByUsername(user));
@@ -304,6 +294,7 @@ public class DataManager {
                 ResultSet resultSet = preparedSelectOrganisationsByProductId.executeQuery();
                 while(resultSet.next()){
                     orgIds.add(resultSet.getLong("id"));
+                    System.out.println(resultSet.getLong("id"));
                 }
 
                 preparedDeleteOrganisationByProductId = DataHandler.getPreparedStatement(DELETE_ORGANISATIONS_BY_PRODUCT_ID, false);
@@ -343,7 +334,9 @@ public class DataManager {
             preparedCheckForRoots.setLong(1, productId);
             preparedCheckForRoots.setLong(2, dataUserManager.getUserIdByUsername(user));
             ResultSet rs = preparedCheckForRoots.executeQuery();
-            return rs.next();
+            boolean f = rs.next();
+            rs.close();
+            return f;
         }catch (SQLException e){
             System.out.println("Problema v BD a ne vo mne");
         }finally {
@@ -358,6 +351,7 @@ public class DataManager {
             preparedStatement = DataHandler.getPreparedStatement(SELECT_PRODUCTS_BY_ID, false);
             preparedStatement.setLong(1, productid);
             ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet.next();
             long id = resultSet.getLong("id");
             String name = resultSet.getString(BD.DataHandler.PRODUCTS_TABLE_NAME_COLUMN);
             LocalDateTime creationDate = resultSet.getTimestamp(BD.DataHandler.PRODUCTS_TABLE_CREATION_DATE_COLUMN).toLocalDateTime();
@@ -366,6 +360,7 @@ public class DataManager {
             int py = resultSet.getInt(BD.DataHandler.PRODUCTS_TABLE_Y_COLUMN);
             Float price = resultSet.getFloat(BD.DataHandler.PRODUCTS_TABLE_PRICE_COLUMN);
             User owner = dataUserManager.getUserById(resultSet.getLong(BD.DataHandler.PRODUCTS_TABLE_USER_ID_COLUMN));
+            resultSet.close();
             Product product = new Product(
                     id,
                     name,
@@ -379,6 +374,8 @@ public class DataManager {
             return product;
         }catch (SQLException | InvalidYCoordinate | NegativePrice e){
             e.printStackTrace();
+        }finally {
+            DataHandler.closePreparedStatement(preparedStatement);
         }
         return null;
     }
@@ -396,6 +393,7 @@ public class DataManager {
             preparedSelectOrgByProdId = DataHandler.getPreparedStatement(SELECT_ORGANISATIONS_BY_PRODUCT_ID, false);
             preparedSelectOrgByProdId.setLong(1, id);
             ResultSet resultSet = preparedSelectOrgByProdId.executeQuery();
+            resultSet.next();
             long org_id = resultSet.getLong("id");
 
             preparedDeleteOrganisationByProductId = DataHandler.getPreparedStatement(DELETE_ORGANISATIONS_BY_PRODUCT_ID, false);
