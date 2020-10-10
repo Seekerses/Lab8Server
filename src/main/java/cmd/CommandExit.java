@@ -24,7 +24,6 @@ public class CommandExit implements Command{
             }
         }catch (NullPointerException e) {
             ServerController.getChannel().close();
-            TableController.getCurrentTable().save(new File("saved.csv"));
             System.out.println("Program completion...");
             System.exit(0);
 

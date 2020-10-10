@@ -18,5 +18,11 @@
       <configured-by-url>true</configured-by-url>
       <jdbc-driver>java.sql.Driver</jdbc-driver>
     </data-source>
+    <data-source source="LOCAL" name="postgres@pg" uuid="1b50c8f2-c085-4f13-aadf-711d3c5245be">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://pg:5432/postgres</jdbc-url>
+    </data-source>
   </component>
 </project>

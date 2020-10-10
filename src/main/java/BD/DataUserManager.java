@@ -29,7 +29,7 @@ public class DataUserManager {
     }
 
     public User getUserById(long userId) throws SQLException {
-        User user;
+        User user = null;
         PreparedStatement preparedSelectUserByIdStatement = null;
         try {
             preparedSelectUserByIdStatement =
@@ -41,8 +41,8 @@ public class DataUserManager {
                         resultSet.getString(BD.DataHandler.USER_TABLE_USERNAME_COLUMN),
                         resultSet.getString(BD.DataHandler.USER_TABLE_PASSWORD_COLUMN)
                 );
-            } else throw new SQLException();
-        } catch (SQLException exception) {
+            }         } catch (SQLException exception) {
+            System.out.println(exception.getSQLState()+ " " + exception.getErrorCode());
             System.out.println("Произошла ошибка при выполнении запроса SELECT_USER_BY_ID!");
             throw new SQLException(exception);
         } finally {
@@ -84,6 +84,9 @@ public class DataUserManager {
     }
 
     public boolean checkUserByUsernameAndPassword(User user) {
+        if(user.getPassword() == null && user.getUsername() == null){
+            return true;
+        }
         PreparedStatement preparedSelectUserByUsernameAndPasswordStatement = null;
         try {
             preparedSelectUserByUsernameAndPasswordStatement =

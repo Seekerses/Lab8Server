@@ -21,6 +21,6 @@ jar {
         attributes('Implementation-Title': project.name,
                 'Implementation-Version': project.version,
                 'Main-Class': 'Main',
-                'Class-Path': configurations.runtimeClasspath.files.collect {'JDBC/lala.jar'})
+                'Class-Path': './JDBC/lala.jar')
     }
 }

@@ -6,15 +6,15 @@ import cmd.CommandHistory;
 
 import java.io.IOException;
 
-class RequestHandler implements Runnable {
+public class RequestHandler implements Runnable {
 
     private Request request;
 
-    RequestHandler(Request request){
+    public RequestHandler(Request request){
         this.request = request;
     }
 
-    private Reply handleRequest(Request request) {
+    public Reply handleRequest(Request request) {
 
         Reply reply = null;
         System.out.printf("\b\nIncoming request from %s is: %s \n>", request.getAddress(), request.getCommand());

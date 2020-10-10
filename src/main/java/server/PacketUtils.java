@@ -1,5 +1,7 @@
 package server;
 
+import clientserverdata.Reply;
+
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
@@ -7,6 +9,19 @@ import java.nio.channels.DatagramChannel;
 import java.util.Arrays;
 
 class PacketUtils {
+
+    protected  static void sendAdress(DatagramChannel channel) {
+        try {
+            Reply newAdr = new Reply(null, channel.getLocalAddress().toString());
+            byte[] adressData = Serializer.serialize(newAdr);
+            ByteBuffer temp = ByteBuffer.allocate(1024);
+            temp.put(adressData);
+            temp.flip();
+            channel.send(temp, channel.getRemoteAddress());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     protected static ByteBuffer getResponse(DatagramChannel channel) throws IOException, InterruptedException {
         ByteBuffer response = ByteBuffer.allocate(1024);

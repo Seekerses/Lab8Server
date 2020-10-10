@@ -1,7 +1,10 @@
 package consolehandler;
 
+import BD.DataHandler;
+import clientserverdata.Request;
 import consolehandler.cmdLists.CommandList;
 import consolehandler.cmdLists.StdCommandList;
+import server.RequestHandler;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -33,11 +36,12 @@ public class ServerInterpretator implements Interpreter {
                         arguments[i] = "";
                     }
                 }
-                return cmdList.getCommands().get(args[0]).execute(arguments);
-            } catch (FileNotFoundException e) {
-                return "File not found";
-            }
-            catch (NullPointerException e){
+                Request request = new Request(cmdList.getCommands().get(args[0]),arguments);
+                request.setLogin("s285582");
+                request.setPassword("sbq939");
+                RequestHandler req = new RequestHandler(new Request(cmdList.getCommands().get(args[0]),arguments));
+                return req.handleRequest(request).getAnswer();
+            } catch (NullPointerException e){
                 return ("Wrong arguments...");
             }
         }

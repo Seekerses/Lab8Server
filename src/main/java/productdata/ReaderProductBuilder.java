@@ -31,9 +31,8 @@ public class ReaderProductBuilder {
                 name = null;
             }
         }
-        System.out.println("Enter price ?\n yes \n any words to no:");
+        System.out.println("Enter price :");
         try {
-            if ("yes".equals(reader.readLine())) {
                 while (price == null) {
                     try {
                         price = Float.parseFloat(reader.readLine());
@@ -45,10 +44,8 @@ public class ReaderProductBuilder {
                         price = null;
                     }
                 }
-            }
-        }
-        catch (IOException e){
-            e.printStackTrace();
+        } catch (Exception ex){
+            System.out.println("Wrong sequence");
         }
         LocalDateTime creationDate = LocalDateTime.now();
         Coordinates coordinates = buildCoordinates(reader);

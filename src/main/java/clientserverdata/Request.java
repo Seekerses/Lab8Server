@@ -41,4 +41,12 @@ public class Request implements Serializable {
     public String toString() {
         return Arrays.toString(args) + command.toString();
     }
+
+    public void setLogin(String login) {
+        this.login = login;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 }

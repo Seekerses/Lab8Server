@@ -46,10 +46,8 @@ public class ServerScheduler implements Runnable{
             try {
                 DatagramChannel channel = DatagramChannel.open(StandardProtocolFamily.INET)
                         .setOption(StandardSocketOptions.SO_REUSEADDR, true)
-                        .bind(new InetSocketAddress(ServerController.getPort()))
-                        .setOption(StandardSocketOptions.IP_MULTICAST_IF, ServerController.getNetworkInterface());
+                        .bind(new InetSocketAddress("localhost",ServerController.getPort()+1+i));
                 channel.configureBlocking(false);
-                channel.join(ServerController.getMCastGroup(),ServerController.getNetworkInterface());
                 availableChannels.add(channel);
             }
             catch (IOException e){

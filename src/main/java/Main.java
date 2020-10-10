@@ -34,7 +34,6 @@ public class Main {
         TableController.setCurrentTable(prodTable);
 
         DataHandler handler = new DataHandler();
-        handler.connectToDataBase();
         prodTable.loadCollection();
         CommandController cmd = new CommandController();
         cmd.start(new CommandInterpreter());

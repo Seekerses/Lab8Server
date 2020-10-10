@@ -2,6 +2,7 @@ package BD;
 
 import consolehandler.TableController;
 import productdata.Product;
+import server.User;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -42,9 +43,9 @@ public class DataHandler {
 
     private final String JDBC_DRIVER = "org.postgresql.Driver";
 
-    private String url = "jdbc:postgresql://localhost:5432/postgres";
-    private String user = "postgres";
-    private String password = "unravel";
+    private String url = "jdbc:postgresql://pg:5432/studs";
+    private String user = "s285582";
+    private String password = "sbq939";
     private Connection connection;
 
     public DataHandler(){
@@ -98,7 +99,7 @@ public class DataHandler {
                     "  UNIQUE(username)" +
                     ")");
             stat.close();
-        }catch (SQLException e){
+        } catch (SQLException e) {
             System.out.println("nepoladki");
         }
     }
@@ -231,4 +232,6 @@ public class DataHandler {
     public void setUrl(String url) {
         this.url = url;
     }
+
+
 }

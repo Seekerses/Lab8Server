@@ -1,5 +1,6 @@
 package server;
 
+import clientserverdata.Reply;
 import clientserverdata.Request;
 
 import java.io.IOException;
@@ -20,7 +21,7 @@ class Receiver implements Runnable {
         this.channel = channel;
     }
 
-    private byte[] getReply() {
+    private byte[] getReply() throws IOException {
 
         ByteBuffer buf = ByteBuffer.allocate(1024); //buffer for coming bytes
         byte[] clear = new byte[1024]; //std buffer for "everything OK" reply
@@ -31,11 +32,7 @@ class Receiver implements Runnable {
 
         byte[] result = new byte[0];
 
-        try {
-            channel.send(ByteBuffer.wrap(done), channel.getRemoteAddress());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        PacketUtils.sendAdress(channel);
 
         try {
             while (true) {
@@ -64,7 +61,6 @@ class Receiver implements Runnable {
 
     @Override
     public void run() {
-
         Request request = null;
         try {
             channel.connect(client);

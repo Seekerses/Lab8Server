@@ -23,6 +23,8 @@ class Sender implements Runnable{
             byte[] done = new byte[1024]; //std buffer for exchanging done reply
             done[0] = 33;
 
+            PacketUtils.sendAdress(channel);
+
             try {
 
                 ByteBuffer buffer = ByteBuffer.allocate(1024);
@@ -42,7 +44,6 @@ class Sender implements Runnable{
 
                     buffer.flip();
                     channel.send(buffer,channel.getRemoteAddress());
-
                     handle = PacketUtils.getResponse(channel);
                     if ( handle.array()[0] == 111 ){
                         if ( data.length > 1024) {

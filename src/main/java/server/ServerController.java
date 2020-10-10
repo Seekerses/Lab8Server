@@ -6,13 +6,13 @@ import java.io.IOException;
 import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Scanner;
 
 public class ServerController {
 
     private static int port = 1337;
+    ServerSocket socket;
     private static final CommandHistory serverHistory = new CommandHistory();
     private static DatagramChannel channel;
     private static ServerScheduler scheduler;
@@ -33,6 +33,7 @@ public class ServerController {
             buf.clear();
             SocketAddress clientAddr = channel.receive(buf);
 
+
             if (checkConnection(buf) && clientAddr != null) {
                 buf.clear();
                 buf.put(ok);
@@ -49,24 +50,11 @@ public class ServerController {
     public static void connect(){
         try {
             setPort();
-            networkInterface = null;
-            Enumeration<NetworkInterface> interfaceEnumeration = NetworkInterface.getNetworkInterfaces();
-            NetworkInterface iter;
-            while (networkInterface == null && interfaceEnumeration.hasMoreElements()){
-                iter = interfaceEnumeration.nextElement();
-                if (iter.isUp() && iter.supportsMulticast() && !iter.isLoopback()){
-                    networkInterface = iter;
-                }
-            }
-
-            mCastGroup = InetAddress.getByName("230.0.0.0");
-            channel = DatagramChannel.open(StandardProtocolFamily.INET)
+            channel = DatagramChannel.open()
                     .setOption(StandardSocketOptions.SO_REUSEADDR, true)
-                    .setOption(StandardSocketOptions.IP_MULTICAST_IF, networkInterface)
-                    .bind(new InetSocketAddress(port));
+                    .bind(new InetSocketAddress("localhost",port));
             channel.configureBlocking(false);
-            System.out.println("Server is bounded to:" + mCastGroup.toString() + ":" + port);
-            channel.join(mCastGroup,networkInterface);
+            System.out.println("Server is bounded to:" +channel.getLocalAddress());
             isUp = true;
         }
         catch (SocketException | UnknownHostException socketException){
