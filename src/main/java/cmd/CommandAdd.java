@@ -3,10 +3,9 @@ import BD.DataHandler;
 import BD.DataManager;
 import BD.DataUserManager;
 import consolehandler.Initializer;
-import consolehandler.TableController;
 import productdata.Product;
 import productdata.ReaderProductBuilder;
-import server.User;
+import clientserverdata.User;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -44,7 +43,7 @@ public class CommandAdd implements Command, Preparable, Serializable {
             user.setUsername(login);
             user.setPassword(password);
 
-            DataHandler handler = new DataHandler();
+            DataHandler handler = DataHandler.getInstance();
             DataUserManager userManager = new DataUserManager(handler);
             DataManager manager = new DataManager(handler, userManager);
             if(userManager.checkUserByUsernameAndPassword(user)) {

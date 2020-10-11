@@ -1,7 +1,7 @@
 package productdata;
 
 import exceptions.NegativePrice;
-import server.User;
+import clientserverdata.User;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;

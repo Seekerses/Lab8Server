@@ -1,6 +1,7 @@
 
 import BD.DataHandler;
 import consolehandler.*;
+import server.ClientNotificator;
 import server.ServerController;
 import server.ServerScheduler;
 
@@ -16,6 +17,7 @@ public class Main {
         ServerController.setScheduler(new ServerScheduler(5,5));
         Thread initiateThread = new Thread(ServerController.getScheduler());
         initiateThread.start();
+
         try {
             initiateThread.join();
         } catch (InterruptedException e){
@@ -29,11 +31,14 @@ public class Main {
                 System.out.println("Oh, no. Server got a wrong data and fall...");
             }
         }).start();
+        ClientNotificator notifier = new ClientNotificator();
+        new Thread(notifier).start();
+        ServerController.setNotifier(notifier);
         Thread.sleep(1000);
         TableManager prodTable = new TableManager("products");
         TableController.setCurrentTable(prodTable);
 
-        DataHandler handler = new DataHandler();
+        DataHandler handler = DataHandler.getInstance();
         prodTable.loadCollection();
         CommandController cmd = new CommandController();
         cmd.start(new CommandInterpreter());

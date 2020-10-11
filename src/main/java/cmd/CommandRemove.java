@@ -3,7 +3,7 @@ import BD.DataHandler;
 import BD.DataManager;
 import BD.DataUserManager;
 import consolehandler.TableController;
-import server.User;
+import clientserverdata.User;
 
 /**
  * removes element with given key
@@ -23,7 +23,7 @@ public class CommandRemove implements Command {
         User user = new User();
         user.setPassword(password);
         user.setUsername(login);
-        DataHandler handler = new DataHandler();
+        DataHandler handler = DataHandler.getInstance();
         DataUserManager userManager = new DataUserManager(handler);
         DataManager manager = new DataManager(handler, userManager);
         if(userManager.checkUserByUsernameAndPassword(user)) {

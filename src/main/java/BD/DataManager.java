@@ -5,7 +5,7 @@ import exceptions.NegativePrice;
 import exceptions.NotUniqueFullName;
 import exceptions.TooLargeFullName;
 import productdata.*;
-import server.User;
+import clientserverdata.User;
 
 import java.sql.*;
 import java.time.LocalDateTime;

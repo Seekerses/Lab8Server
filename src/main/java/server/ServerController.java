@@ -6,21 +6,22 @@ import java.io.IOException;
 import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
-import java.util.Enumeration;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class ServerController {
 
     private static int port = 1337;
-    ServerSocket socket;
     private static final CommandHistory serverHistory = new CommandHistory();
     private static DatagramChannel channel;
     private static ServerScheduler scheduler;
-    private static InetAddress mCastGroup;
-    private static NetworkInterface networkInterface;
+    private static ArrayList<InetSocketAddress> clientList;
     private static boolean isUp;
+    private static ClientNotificator notifier;
 
     public static void start() throws IOException {
+
+        clientList = new ArrayList<>();
 
         System.out.println("Server awaiting connections...\n");
 
@@ -39,10 +40,14 @@ public class ServerController {
                 buf.put(ok);
                 buf.flip();
                 channel.send(buf, clientAddr);
+                clientList.add((InetSocketAddress)clientAddr);
             }
 
             if(checkRequest(buf) && clientAddr != null){
                 scheduler.getClients().add((InetSocketAddress) clientAddr);
+                if(!clientList.contains((InetSocketAddress) clientAddr)){
+                    clientList.add((InetSocketAddress) clientAddr);
+                }
             }
         }
     }
@@ -117,15 +122,19 @@ public class ServerController {
         return port;
     }
 
-    static InetAddress getMCastGroup() {
-        return mCastGroup;
-    }
-
-    static NetworkInterface getNetworkInterface() {
-        return networkInterface;
-    }
-
     public static void setScheduler(ServerScheduler scheduler) {
         ServerController.scheduler = scheduler;
+    }
+
+    public static ArrayList<InetSocketAddress> getClientList() {
+        return clientList;
+    }
+
+    public static ClientNotificator getNotifier() {
+        return notifier;
+    }
+
+    public static void setNotifier(ClientNotificator notifier) {
+        ServerController.notifier = notifier;
     }
 }

@@ -1,5 +1,6 @@
 package server;
 
+import clientserverdata.Reply;
 import clientserverdata.Request;
 
 import java.io.*;
@@ -20,6 +21,7 @@ class Serializer {
 
         }
         catch (IOException e){
+            e.printStackTrace();
             System.out.print("Some class is unserializable");
             return null;
         }

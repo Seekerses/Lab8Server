@@ -3,6 +3,7 @@ package BD;
 import consolehandler.TableController;
 import org.postgresql.PGConnection;
 import org.postgresql.PGNotification;
+import server.ServerController;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -27,18 +28,14 @@ public class ChangeObserver implements Runnable {
     public void run() {
         try {
         while (true){
-                PGNotification[] notifications = pgConnection.getNotifications(4);
+                PGNotification[] notifications = pgConnection.getNotifications();
 
                 if (notifications != null && notifications.length != 0) {
+
                     TableController.getCurrentTable().loadCollection();
-                    notifications = null;
-                    try {
-                        Thread.sleep(5000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    ServerController.getNotifier().notifyMe();
                 }
-                }
+        }
 
     } catch (SQLException ex){
             ex.printStackTrace();
@@ -54,7 +51,7 @@ public class ChangeObserver implements Runnable {
                 "RETURNS trigger AS\n" +
                 "$$\n" +
                 "begin\n" +
-                "PERFORM pg_notify('listener','change');\n" +
+                "PERFORM pg_notify('listener','changed');\n" +
                 "RETURN NEW;\n" +
                 "end\n" +
                 "$$ LANGUAGE plpgsql;\n" +
@@ -64,7 +61,7 @@ public class ChangeObserver implements Runnable {
                 "CREATE TRIGGER add_notify\n" +
                 "AFTER INSERT OR DELETE OR UPDATE\n" +
                 "ON products\n" +
-                "FOR EACH ROW \n" +
+                "FOR EACH STATEMENT \n" +
                 "EXECUTE PROCEDURE notificator();");
         trigger.close();
     }

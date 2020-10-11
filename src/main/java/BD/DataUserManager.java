@@ -1,6 +1,6 @@
 package BD;
 
-import server.User;
+import clientserverdata.User;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

@@ -1,11 +1,6 @@
 package BD;
 
-import consolehandler.TableController;
-import productdata.Product;
-import server.User;
-
 import java.sql.*;
-import java.time.LocalDateTime;
 
 public class DataHandler {
     // Table names
@@ -47,9 +42,23 @@ public class DataHandler {
     private String user = "s285582";
     private String password = "sbq939";
     private Connection connection;
+    private static volatile DataHandler instance;
 
-    public DataHandler(){
+    private DataHandler(){
         connectToDataBase();
+    }
+
+    public static DataHandler getInstance() {
+        DataHandler localInstance = instance;
+        if (localInstance == null) {
+            synchronized (DataHandler.class) {
+                localInstance = instance;
+                if (localInstance == null) {
+                    instance = localInstance = new DataHandler();
+                }
+            }
+        }
+        return localInstance;
     }
 
     public void connectToDataBase() {

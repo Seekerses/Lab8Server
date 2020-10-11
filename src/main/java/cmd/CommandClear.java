@@ -1,7 +1,7 @@
 package cmd;
 import BD.*;
 import consolehandler.TableController;
-import server.User;
+import clientserverdata.User;
 
 /**
  * remove all elements from the collection
@@ -29,7 +29,7 @@ public class CommandClear implements Command {
                 User user = new User();
                 user.setPassword(password);
                 user.setUsername(login);
-                DataHandler handler = new DataHandler();
+                DataHandler handler = DataHandler.getInstance();
                 BD.DataUserManager userManager = new DataUserManager(handler);
                 DataManager manager = new DataManager(handler,userManager);
                 if(userManager.checkUserByUsernameAndPassword(user)) {

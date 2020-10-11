@@ -65,9 +65,11 @@ class Sender implements Runnable{
                     handle = PacketUtils.getResponse(channel);
                 }
             }catch (SocketTimeoutException ex){
+                ex.printStackTrace();
                 System.out.println("Client " + reply.getAddress() + " not responding." );
             }
             catch (IOException | InterruptedException e){
+                e.printStackTrace();
                 System.out.println("Oh, no. IO errors while sending reply!");
             }
         }

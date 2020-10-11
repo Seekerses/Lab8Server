@@ -210,14 +210,16 @@ public class TableManager {
 
     public void loadCollection() {
         try {
-            dataHandler = new DataHandler();
+            dataHandler = DataHandler.getInstance();
             userManager = new DataUserManager(dataHandler);
             BDaseManager = new DataManager(dataHandler, userManager);
             table = BDaseManager.getCollection();
-            System.out.println("es");
         } catch (Exception exception) {
             System.out.println("Collection is not loaded!");
         }
     }
 
+    public Hashtable<String, Product> getTable() {
+        return table;
+    }
 }

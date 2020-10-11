@@ -4,7 +4,7 @@ import BD.DataManager;
 import BD.DataUserManager;
 import consolehandler.TableController;
 import productdata.Product;
-import server.User;
+import clientserverdata.User;
 
 import java.util.*;
 
@@ -32,7 +32,7 @@ public class Commandremove_lower implements Command{
         User user = new User();
         user.setUsername(login);
         user.setPassword(password);
-        DataHandler handler = new DataHandler();
+        DataHandler handler = DataHandler.getInstance();
         DataUserManager userManager = new DataUserManager(handler);
         DataManager manager = new DataManager(handler, userManager);
         if(userManager.checkUserByUsernameAndPassword(user)) {

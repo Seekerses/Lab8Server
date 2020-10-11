@@ -2,7 +2,7 @@ package cmd;
 
 import BD.DataHandler;
 import BD.DataUserManager;
-import server.User;
+import clientserverdata.User;
 
 import java.util.Scanner;
 
@@ -14,7 +14,7 @@ public class CommandLogin implements Command, Preparable, Registerable {
 
     @Override
     public String execute(String[] args) {
-        DataHandler handler = new DataHandler();
+        DataHandler handler = DataHandler.getInstance();
         DataUserManager userManager = new DataUserManager(handler);
         User user = new User();
         user.setUsername(login);

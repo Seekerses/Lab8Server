@@ -6,7 +6,7 @@ import consolehandler.Initializer;
 import consolehandler.TableController;
 import productdata.Product;
 import productdata.ReaderProductBuilder;
-import server.User;
+import clientserverdata.User;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -34,7 +34,7 @@ public class Commandreplace_if_greater implements Command,Preparable{
         User user = new User();
         user.setPassword(password);
         user.setUsername(login);
-        DataHandler handler = new DataHandler();
+        DataHandler handler = DataHandler.getInstance();
         DataUserManager userManager = new DataUserManager(handler);
         DataManager manager = new DataManager(handler, userManager);
         if(userManager.checkUserByUsernameAndPassword(user)) {

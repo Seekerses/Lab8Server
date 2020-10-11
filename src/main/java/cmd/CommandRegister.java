@@ -2,7 +2,7 @@ package cmd;
 
 import BD.DataHandler;
 import BD.DataUserManager;
-import server.User;
+import clientserverdata.User;
 
 import java.util.Scanner;
 
@@ -16,7 +16,7 @@ public class CommandRegister implements Command, Preparable, Registerable {
     public String execute(String[] args){
         User user =  new User();
         try {
-            DataUserManager manager = new DataUserManager(new DataHandler());
+            DataUserManager manager = new DataUserManager(DataHandler.getInstance());
             user.setUsername(login);
             user.setPassword(password);
             if (manager.insertUser(user)) {
