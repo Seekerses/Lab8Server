@@ -3,6 +3,7 @@ package server;
 import clientserverdata.Reply;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
@@ -65,8 +66,10 @@ class Sender implements Runnable{
                     handle = PacketUtils.getResponse(channel);
                 }
             }catch (SocketTimeoutException ex){
-                ex.printStackTrace();
                 System.out.println("Client " + reply.getAddress() + " not responding." );
+                ServerController.getClientList().remove(reply.getAddress());
+                ServerController.getClientList().remove(new InetSocketAddress(reply.getAddress().getAddress().toString(),
+                        reply.getAddress().getPort()-1));
             }
             catch (IOException | InterruptedException e){
                 e.printStackTrace();
@@ -77,6 +80,9 @@ class Sender implements Runnable{
     @Override
     public void run() {
         try {
+            if (channel.isConnected()){
+                channel.disconnect();
+            }
             channel.connect(reply.getAddress());
             send(Serializer.serialize(reply));
         } catch (IOException e) {

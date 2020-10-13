@@ -8,6 +8,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class ServerController {
 
@@ -15,7 +16,7 @@ public class ServerController {
     private static final CommandHistory serverHistory = new CommandHistory();
     private static DatagramChannel channel;
     private static ServerScheduler scheduler;
-    private static ArrayList<InetSocketAddress> clientList;
+    private static volatile ArrayList<InetSocketAddress> clientList;
     private static boolean isUp;
     private static ClientNotificator notifier;
 
@@ -40,13 +41,17 @@ public class ServerController {
                 buf.put(ok);
                 buf.flip();
                 channel.send(buf, clientAddr);
-                clientList.add((InetSocketAddress)clientAddr);
+                if (!getClientList().contains((InetSocketAddress)clientAddr)) {
+                    getClientList().add((InetSocketAddress) clientAddr);
+                }
+                getClientList().forEach(System.out::println);
+//                notifier.notifyMe();
             }
 
             if(checkRequest(buf) && clientAddr != null){
                 scheduler.getClients().add((InetSocketAddress) clientAddr);
-                if(!clientList.contains((InetSocketAddress) clientAddr)){
-                    clientList.add((InetSocketAddress) clientAddr);
+                if(!getClientList().contains((InetSocketAddress) clientAddr)){
+                    getClientList().add((InetSocketAddress) clientAddr);
                 }
             }
         }
@@ -126,7 +131,7 @@ public class ServerController {
         ServerController.scheduler = scheduler;
     }
 
-    public static ArrayList<InetSocketAddress> getClientList() {
+    public static synchronized ArrayList<InetSocketAddress> getClientList() {
         return clientList;
     }
 

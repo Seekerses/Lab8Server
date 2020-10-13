@@ -52,6 +52,9 @@ class Receiver implements Runnable {
             }
         }catch (SocketTimeoutException ex){
             System.out.println("Client " + client + " not responding." );
+            ServerController.getClientList().remove(client);
+            ServerController.getClientList().remove(new InetSocketAddress(client.getAddress().toString(),
+                    client.getPort()-1));
         }
         catch(IOException e){
             System.out.println("Error in IO while receiving message");
@@ -63,6 +66,9 @@ class Receiver implements Runnable {
     public void run() {
         Request request = null;
         try {
+            if (channel.isConnected()){
+                channel.disconnect();
+            }
             channel.connect(client);
             request = Serializer.deserialize(getReply());
             Objects.requireNonNull(request).setAddress((InetSocketAddress) channel.getRemoteAddress());
