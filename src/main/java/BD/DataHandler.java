@@ -38,9 +38,9 @@ public class DataHandler {
 
     private final String JDBC_DRIVER = "org.postgresql.Driver";
 
-    private String url = "jdbc:postgresql://pg:5432/studs";
-    private String user = "s285582";
-    private String password = "sbq939";
+    private String url = "jdbc:postgresql://localhost:5432/postgres";
+    private String user = "postgres";
+    private String password = "835807643";
     private Connection connection;
     private static volatile DataHandler instance;
 
@@ -120,9 +120,9 @@ public class DataHandler {
                     "  id serial,\n" +
                     "  organisation_id NUMERIC,\n" +
                     "  street varchar(50),\n" +
-                    "  x NUMERIC NOT NULL ,\n" +
-                    "  y NUMERIC NOT NULL ,\n" +
-                    "  z NUMERIC NOT NULL ,\n" +
+                    "  x NUMERIC ,\n" +
+                    "  y NUMERIC ,\n" +
+                    "  z NUMERIC ,\n" +
                     "  PRIMARY KEY (id)\n" +
                     ")");
             sta.close();

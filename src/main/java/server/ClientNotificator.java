@@ -52,6 +52,9 @@ public class ClientNotificator implements Runnable{
 
     protected void sendUpdate(InetSocketAddress client) throws IOException, InterruptedException {
 
+        if (channel.isConnected()){
+            channel.disconnect();
+        }
         Reply updatedTable = new Reply(TableController.getCurrentTable().getTable(),"update");
         InetSocketAddress clientAddr = new InetSocketAddress(client.toString().split(":")[0].split("/")[1],
                 (Integer.parseInt(client.toString().split(":")[1])+1));
@@ -63,5 +66,6 @@ public class ClientNotificator implements Runnable{
         Sender sender = new Sender(updatedTable, channel);
         Thread sendThread = new Thread(sender);
         sendThread.start();
+        sendThread.join();
     }
 }

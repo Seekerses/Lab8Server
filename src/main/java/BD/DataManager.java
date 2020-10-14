@@ -33,8 +33,10 @@ public class DataManager {
             BD.DataHandler.PRODUCTS_TABLE_TYPE_COLUMN + ", " +
             BD.DataHandler.PRODUCTS_TABLE_X_COLUMN + ", " +
             BD.DataHandler.PRODUCTS_TABLE_Y_COLUMN + ", " +
-            BD.DataHandler.PRODUCTS_TABLE_PRICE_COLUMN + ", " +
-            BD.DataHandler.PRODUCTS_TABLE_USER_ID_COLUMN + ") VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?)";
+            BD.DataHandler.PRODUCTS_TABLE_USER_ID_COLUMN + ") VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?)";
+    private final String INSERT_PRODUCTS_PRICE = "INSERT INTO " +
+            BD.DataHandler.PRODUCTS_TABLE + " (" +
+            BD.DataHandler.PRODUCTS_TABLE_PRICE_COLUMN + ") VALUES (?)";
     private final String INSERT_PRODUCTS_WITH_ID = "INSERT INTO " +
             BD.DataHandler.PRODUCTS_TABLE + " (" +
             BD.DataHandler.PRODUCTS_TABLE_ID_COLUMN + ", " +
@@ -44,8 +46,7 @@ public class DataManager {
             BD.DataHandler.PRODUCTS_TABLE_TYPE_COLUMN + ", " +
             BD.DataHandler.PRODUCTS_TABLE_X_COLUMN + ", " +
             BD.DataHandler.PRODUCTS_TABLE_Y_COLUMN + ", " +
-            BD.DataHandler.PRODUCTS_TABLE_PRICE_COLUMN + ", " +
-            BD.DataHandler.PRODUCTS_TABLE_USER_ID_COLUMN + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            BD.DataHandler.PRODUCTS_TABLE_USER_ID_COLUMN + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     private final String DELETE_PRODUCTS_BY_USER_ID = "DELETE FROM " + BD.DataHandler.PRODUCTS_TABLE +
             " WHERE " + BD.DataHandler.PRODUCTS_TABLE_USER_ID_COLUMN + " = ?";
     private final String DELETE_PRODUCTS_BY_ID = "DELETE FROM " + BD.DataHandler.PRODUCTS_TABLE +
@@ -60,7 +61,7 @@ public class DataManager {
             BD.DataHandler.LOCATION_TABLE + " (" +
             BD.DataHandler.COORDINATES_TABLE_ID_COLUMN + ", " +
             BD.DataHandler.COORDINATES_TABLE_ORGANISATION_ID_COLUMN + ", " +
-            BD.DataHandler.COORDINATES_TABLE_STREET_COLUMN + ", " +
+            BD.DataHandler.COORDINATES_TABLE_STREET_COLUMN + ","+
             BD.DataHandler.COORDINATES_TABLE_X_COLUMN + ", " +
             BD.DataHandler.COORDINATES_TABLE_Y_COLUMN + ", " +
             BD.DataHandler.COORDINATES_TABLE_Z_COLUMN + ") VALUES (DEFAULT, ?, ?, ?, ?, ?)";
@@ -114,6 +115,9 @@ public class DataManager {
             double px = resultSet.getDouble(BD.DataHandler.PRODUCTS_TABLE_X_COLUMN);
             int py = resultSet.getInt(BD.DataHandler.PRODUCTS_TABLE_Y_COLUMN);
             Float price = resultSet.getFloat(BD.DataHandler.PRODUCTS_TABLE_PRICE_COLUMN);
+            if(price == 0){
+                price = null;
+            }
             User owner = dataUserManager.getUserById(resultSet.getLong(BD.DataHandler.PRODUCTS_TABLE_USER_ID_COLUMN));
             Product product = new Product(
                     id,
@@ -170,7 +174,7 @@ public class DataManager {
             long x = resultSet.getLong(BD.DataHandler.COORDINATES_TABLE_X_COLUMN);
             int y = resultSet.getInt(BD.DataHandler.COORDINATES_TABLE_Y_COLUMN);
             long z = resultSet.getLong(BD.DataHandler.COORDINATES_TABLE_Z_COLUMN);
-            Location loc = new Location(x, y, z);
+            Location loc = new Location(x,y,z);
             return new Address(street, loc);
         }catch (SQLException e){
             e.printStackTrace();
@@ -192,7 +196,7 @@ public class DataManager {
 
             LocalDateTime creationtime = LocalDateTime.now();
 
-            insertProductStatement = DataHandler.getPreparedStatement(INSERT_PRODUCTS,false);
+            insertProductStatement = DataHandler.getPreparedStatement(INSERT_PRODUCTS_WITH_ID,false);
             insertOrganisationStatement = DataHandler.getPreparedStatement(INSERT_ORGANISATIONS, false);
             insertLocationStatement = DataHandler.getPreparedStatement(INSERT_COORDINATES,false);
 
@@ -203,21 +207,23 @@ public class DataManager {
             insertProductStatement.setString(5, product.getUnitOfMeasure().toString());
             insertProductStatement.setDouble(6, product.getCoordinates().getX());
             insertProductStatement.setInt(7, product.getCoordinates().getY());
-            insertProductStatement.setFloat(8, product.getPrice());
-            insertProductStatement.setLong(9, dataUserManager.getUserIdByUsername(user));
+            insertProductStatement.setLong(8, dataUserManager.getUserIdByUsername(user));
             if (insertProductStatement.executeUpdate() == 0) throw new SQLException();
-            long productId = 1;
-            Statement s = DataHandler.getConnection().createStatement();
-            ResultSet rs = s.executeQuery("select * from products");
-            while(rs.next()){
-                productId = rs.getInt(1);}
+
+            if(product.getPrice()!=null){
+                PreparedStatement insertPrise = DataHandler.getPreparedStatement(INSERT_PRODUCTS_PRICE, false);
+                insertPrise.setFloat(1, product.getPrice());
+                if(insertPrise.executeUpdate() == 0) throw new SQLException();
+                DataHandler.closePreparedStatement(insertPrise);
+            }
 
             if(product.getManufacturer()!=null) {
                 insertOrganisationStatement.setString(1, product.getManufacturer().getName());
                 insertOrganisationStatement.setString(2, product.getManufacturer().getFullName());
                 insertOrganisationStatement.setString(3, product.getManufacturer().getType().toString());
-                insertOrganisationStatement.setLong(4, productId);
+                insertOrganisationStatement.setLong(4, id);
                 if (insertOrganisationStatement.executeUpdate() == 0) throw new SQLException();
+
                 long orgId = 1;
                 Statement st = DataHandler.getConnection().createStatement();
                 ResultSet rst = st.executeQuery("select * from organisations");
@@ -227,7 +233,7 @@ public class DataManager {
 
                 insertLocationStatement.setLong(1, orgId);
                 insertLocationStatement.setString(2, product.getManufacturer().getPostalAddress().getStreet());
-                insertLocationStatement.setDouble(3, product.getManufacturer().getPostalAddress().getTown().getX());
+                insertLocationStatement.setLong(3, product.getManufacturer().getPostalAddress().getTown().getX());
                 insertLocationStatement.setInt(4, product.getManufacturer().getPostalAddress().getTown().getY());
                 insertLocationStatement.setLong(5, product.getManufacturer().getPostalAddress().getTown().getZ());
                 if (insertLocationStatement.executeUpdate() == 0) throw new SQLException();
@@ -266,9 +272,15 @@ public class DataManager {
             insertProductStatement.setString(4, product.getUnitOfMeasure().toString());
             insertProductStatement.setDouble(5, product.getCoordinates().getX());
             insertProductStatement.setInt(6, product.getCoordinates().getY());
-            insertProductStatement.setFloat(7, product.getPrice());
-            insertProductStatement.setLong(8, dataUserManager.getUserIdByUsername(user));
+            insertProductStatement.setLong(7, dataUserManager.getUserIdByUsername(user));
             if (insertProductStatement.executeUpdate() == 0) throw new SQLException();
+
+            if(product.getPrice()!=null){
+                PreparedStatement insertPrise = DataHandler.getPreparedStatement(INSERT_PRODUCTS_PRICE, false);
+                insertPrise.setFloat(1, product.getPrice());
+                if(insertPrise.executeUpdate() == 0) throw new SQLException();
+                DataHandler.closePreparedStatement(insertPrise);
+            }
             long productId = 1;
             Statement s = DataHandler.getConnection().createStatement();
             ResultSet rs = s.executeQuery("select * from products");
@@ -281,16 +293,16 @@ public class DataManager {
                 insertOrganisationStatement.setString(3, product.getManufacturer().getType().toString());
                 insertOrganisationStatement.setLong(4, productId);
                 if (insertOrganisationStatement.executeUpdate() == 0) throw new SQLException();
+
                 long orgId = 1;
                 Statement st = DataHandler.getConnection().createStatement();
                 ResultSet rst = st.executeQuery("select * from organisations");
                 while (rst.next()) {
                     orgId = rst.getInt(1);
                 }
-
                 insertLocationStatement.setLong(1, orgId);
                 insertLocationStatement.setString(2, product.getManufacturer().getPostalAddress().getStreet());
-                insertLocationStatement.setDouble(3, product.getManufacturer().getPostalAddress().getTown().getX());
+                insertLocationStatement.setLong(3, product.getManufacturer().getPostalAddress().getTown().getX());
                 insertLocationStatement.setInt(4, product.getManufacturer().getPostalAddress().getTown().getY());
                 insertLocationStatement.setLong(5, product.getManufacturer().getPostalAddress().getTown().getZ());
                 if (insertLocationStatement.executeUpdate() == 0) throw new SQLException();
@@ -331,7 +343,7 @@ public class DataManager {
             ResultSet resultSet1 = preparedSelectAllOrganisations.executeQuery();
             while (resultSet1.next()) {
                 Organization org = createOrganisation(resultSet1, addressMap);
-                assert org != null;
+                assert org !=null;
                 orgMap.put(resultSet1.getLong("product_id"),org);
             }
             DataHandler.closePreparedStatement(preparedSelectAllOrganisations);
@@ -374,38 +386,41 @@ public class DataManager {
             ResultSet rs = preparedSelectProductByUser.executeQuery();
             while (rs.next()){
                 ids.add(rs.getLong("id"));
-                System.out.println(rs.getLong("id"));
             }
+            rs.close();
+
             preparedDeleteProductByUser = DataHandler.getPreparedStatement(DELETE_PRODUCTS_BY_USER_ID, false);
             preparedDeleteProductByUser.setLong(1, dataUserManager.getUserIdByUsername(user));
             if (preparedDeleteProductByUser.executeUpdate() == 0) throw new SQLException();
 
             int i = 0;
-            while(i <= ids.size()) {
+            while(i < ids.size()) {
                 ArrayList<Long> orgIds = new ArrayList<>();
                 preparedSelectOrganisationsByProductId = DataHandler.getPreparedStatement(SELECT_ORGANISATIONS_BY_PRODUCT_ID, false);
                 preparedSelectOrganisationsByProductId.setLong(1, ids.get(i));
                 ResultSet resultSet = preparedSelectOrganisationsByProductId.executeQuery();
                 while(resultSet.next()){
                     orgIds.add(resultSet.getLong("id"));
-                    System.out.println(resultSet.getLong("id"));
                 }
+                resultSet.close();
+                if(orgIds.size() != 0) {
+                    preparedDeleteOrganisationByProductId = DataHandler.getPreparedStatement(DELETE_ORGANISATIONS_BY_PRODUCT_ID, false);
+                    preparedDeleteOrganisationByProductId.setLong(1, ids.get(i));
+                    if (preparedDeleteOrganisationByProductId.executeUpdate() == 0) throw new SQLException();
+                    DataHandler.closePreparedStatement(preparedDeleteOrganisationByProductId);
 
-                preparedDeleteOrganisationByProductId = DataHandler.getPreparedStatement(DELETE_ORGANISATIONS_BY_PRODUCT_ID, false);
-                preparedDeleteOrganisationByProductId.setLong(1, ids.get(i));
-                if (preparedDeleteOrganisationByProductId.executeUpdate() == 0) throw new SQLException();
+                    int j = 0;
+                    while (j <= orgIds.size()) {
+                        preparedDeleteLocationByOrganisationId = DataHandler.getPreparedStatement(DELETE_COORDINATES_BY_ORGANISATION_ID, false);
+                        preparedDeleteLocationByOrganisationId.setLong(1, orgIds.get(j));
+                        if (preparedDeleteLocationByOrganisationId.executeUpdate() == 0) throw new SQLException();
+                        j++;
+                        DataHandler.closePreparedStatement(preparedDeleteLocationByOrganisationId);
+                    }
+                }
                 i++;
-                DataHandler.closePreparedStatement(preparedDeleteOrganisationByProductId);
-
-                int j = 0;
-                while(j <= orgIds.size()) {
-                    preparedDeleteLocationByOrganisationId = DataHandler.getPreparedStatement(DELETE_COORDINATES_BY_ORGANISATION_ID, false);
-                    preparedDeleteLocationByOrganisationId.setLong(1, orgIds.get(j));
-                    if (preparedDeleteLocationByOrganisationId.executeUpdate() == 0) throw new SQLException();
-                    j++;
-                    DataHandler.closePreparedStatement(preparedDeleteLocationByOrganisationId);
-                }
             }
+            System.out.println("done");
             DataHandler.commit();
 
         } catch (SQLException exception) {
@@ -492,16 +507,21 @@ public class DataManager {
             preparedSelectOrgByProdId = DataHandler.getPreparedStatement(SELECT_ORGANISATIONS_BY_PRODUCT_ID, false);
             preparedSelectOrgByProdId.setLong(1, id);
             ResultSet resultSet = preparedSelectOrgByProdId.executeQuery();
-            resultSet.next();
-            long org_id = resultSet.getLong("id");
+            long org_id = 0;
+            while(resultSet.next()) {
+                org_id = resultSet.getLong("id");
+            }
+            resultSet.close();
 
-            preparedDeleteOrganisationByProductId = DataHandler.getPreparedStatement(DELETE_ORGANISATIONS_BY_PRODUCT_ID, false);
-            preparedDeleteOrganisationByProductId.setLong(1, id);
-            if(preparedDeleteOrganisationByProductId.executeUpdate() == 0) throw new SQLException();
+            if(org_id != 0) {
+                preparedDeleteOrganisationByProductId = DataHandler.getPreparedStatement(DELETE_ORGANISATIONS_BY_PRODUCT_ID, false);
+                preparedDeleteOrganisationByProductId.setLong(1, id);
+                if (preparedDeleteOrganisationByProductId.executeUpdate() == 0) throw new SQLException();
 
-            preparedDeleteLocationByOrgId = DataHandler.getPreparedStatement(DELETE_COORDINATES_BY_ORGANISATION_ID, false);
-            preparedDeleteLocationByOrgId.setLong(1, org_id);
-            if(preparedDeleteLocationByOrgId.executeUpdate() == 0) throw new SQLException();
+                preparedDeleteLocationByOrgId = DataHandler.getPreparedStatement(DELETE_COORDINATES_BY_ORGANISATION_ID, false);
+                preparedDeleteLocationByOrgId.setLong(1, org_id);
+                if (preparedDeleteLocationByOrgId.executeUpdate() == 0) throw new SQLException();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }finally {
