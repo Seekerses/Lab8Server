@@ -23,7 +23,7 @@ public class CommandInfo implements Command {
         }catch (NullPointerException e) {
             return ("Size of collection: " + (long) TableController.getCurrentTable().getProducts().size() + "\n"
                     + "Type of collection: " + TableController.getCurrentTable().getType() + "\n" +
-                    "Date of creation: " + TableController.getCurrentTable().getCreationDate().toString() + "\nCommand complete...");
+                    "Last initialization time: " + TableController.getCurrentTable().getCreationDate().toString() + "\nCommand complete...");
         }
         return null;
     }

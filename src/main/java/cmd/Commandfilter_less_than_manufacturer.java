@@ -33,7 +33,7 @@ public class Commandfilter_less_than_manufacturer implements Command {
     public String execute(String[] args) {
         try {
             ShowInfo showInfo = new ShowInfo();
-            TableController.getCurrentTable().getProducts().stream().filter(p -> p.getManufacturer().getFullName().length() < args[0].length())
+            TableController.getCurrentTable().getProducts().stream().filter(o -> o.getManufacturer()!=null).filter(p -> p.getManufacturer().getFullName().length() < args[0].length())
                     .sorted(Comparator.comparing(p -> p.getManufacturer().getFullName()))
                     .forEach(x -> showInfo.addInfo(x.toString()));
 
