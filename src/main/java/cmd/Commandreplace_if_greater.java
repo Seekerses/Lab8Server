@@ -44,7 +44,7 @@ public class Commandreplace_if_greater implements Command,Preparable{
             } else try {
                 int c = 0;
                 for (String key : TableController.getCurrentTable().getKey()) {
-                    if (key.equals(args[0])) {
+                    if (key.equals(this.key)) {
                         c++;
                     }
                 }
@@ -52,10 +52,14 @@ public class Commandreplace_if_greater implements Command,Preparable{
                     return ("No such key\nAvailable keys: " + TableController.getCurrentTable().getKey());
                 } else {
                     for (Map.Entry<String, Product> map : TableController.getCurrentTable().getSet()) {
-                        if (map.getKey().compareTo(args[0]) == 0) {
+                        if (map.getKey().compareTo(this.key) == 0) {
                             if (product != null && product.getPrice() > map.getValue().getPrice()) {
-                                manager.deleteProductById(map.getValue().getId());
-                                manager.insertProduct(product, key, user);
+                                if(manager.checkForRoots(map.getValue().getId(), user)) {
+                                    manager.deleteProductById(map.getValue().getId());
+                                    manager.insertProduct(map.getValue().getId(), product, key, user);
+                                }else{
+                                    return "No rights to change other's product";
+                                }
                             }
                         }
                     }
@@ -65,7 +69,7 @@ public class Commandreplace_if_greater implements Command,Preparable{
                 return ("Argument must be a number");
             }
         }
-        return null;
+        return "Element has been replaced";
     }
     @Override
     public void prepare(String[] args) {

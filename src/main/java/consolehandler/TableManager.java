@@ -214,6 +214,7 @@ public class TableManager {
             userManager = new DataUserManager(dataHandler);
             BDaseManager = new DataManager(dataHandler, userManager);
             table = BDaseManager.getCollection();
+            setCreationDate(LocalDateTime.now());
         } catch (Exception exception) {
             System.out.println("Collection is not loaded!");
         }
