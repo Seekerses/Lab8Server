@@ -181,6 +181,9 @@ public class DataManager {
             long x = resultSet.getLong(BD.DataHandler.COORDINATES_TABLE_X_COLUMN);
             int y = resultSet.getInt(BD.DataHandler.COORDINATES_TABLE_Y_COLUMN);
             long z = resultSet.getLong(BD.DataHandler.COORDINATES_TABLE_Z_COLUMN);
+            if(x==0||y==0||z==0){
+                return new Address(street, null);
+            }
             Location loc = new Location(x,y,z);
             return new Address(street, loc);
         }catch (SQLException e){
@@ -420,6 +423,7 @@ public class DataManager {
         PreparedStatement preparedDeleteOrganisationByProductId = null;
         PreparedStatement preparedSelectOrganisationsByProductId = null;
         PreparedStatement preparedDeleteLocationByOrganisationId = null;
+        PreparedStatement preparedSelectLocByOrgId = null;
         try {
             lock.lock();
             DataHandler.setCommitMode();
@@ -455,11 +459,22 @@ public class DataManager {
 
                     int j = 0;
                     while (j <= orgIds.size()) {
-                        preparedDeleteLocationByOrganisationId = DataHandler.getPreparedStatement(DELETE_COORDINATES_BY_ORGANISATION_ID, false);
-                        preparedDeleteLocationByOrganisationId.setLong(1, orgIds.get(j));
-                        if (preparedDeleteLocationByOrganisationId.executeUpdate() == 0) throw new SQLException();
-                        j++;
-                        DataHandler.closePreparedStatement(preparedDeleteLocationByOrganisationId);
+                        ArrayList<Long> locIds = new ArrayList<>();
+                        preparedSelectLocByOrgId = DataHandler.getPreparedStatement(SELECT_COORDINATES_BY_ORGANISATION_ID, false);
+                        preparedSelectLocByOrgId.setLong(1, orgIds.get(j));
+                        ResultSet resultSet1 = preparedSelectLocByOrgId.executeQuery();
+                        while(resultSet1.next()){
+                            locIds.add(resultSet.getLong("id"));
+                        }
+                        resultSet1.close();
+
+                        if(locIds.size()!=0) {
+                            preparedDeleteLocationByOrganisationId = DataHandler.getPreparedStatement(DELETE_COORDINATES_BY_ORGANISATION_ID, false);
+                            preparedDeleteLocationByOrganisationId.setLong(1, orgIds.get(j));
+                            if (preparedDeleteLocationByOrganisationId.executeUpdate() == 0) throw new SQLException();
+                            j++;
+                            DataHandler.closePreparedStatement(preparedDeleteLocationByOrganisationId);
+                        }
                     }
                 }
                 i++;
@@ -477,6 +492,7 @@ public class DataManager {
             DataHandler.closePreparedStatement(preparedSelectProductByUser);
             DataHandler.closePreparedStatement(preparedDeleteProductByUser);
             DataHandler.closePreparedStatement(preparedSelectOrganisationsByProductId);
+            DataHandler.closePreparedStatement(preparedSelectLocByOrgId);
         }
     }
 

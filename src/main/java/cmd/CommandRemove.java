@@ -26,6 +26,9 @@ public class CommandRemove implements Command {
         DataHandler handler = DataHandler.getInstance();
         DataUserManager userManager = new DataUserManager(handler);
         DataManager manager = new DataManager(handler, userManager);
+        if(args.length == 0){
+            return "Enter key to remove!";
+        }
         if(userManager.checkUserByUsernameAndPassword(user)) {
             int count = 0;
             for (String key : TableController.getCurrentTable().getKey()) {
