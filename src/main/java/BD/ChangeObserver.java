@@ -31,7 +31,7 @@ public class ChangeObserver implements Runnable {
                 PGNotification[] notifications = pgConnection.getNotifications();
 
                 if (notifications != null && notifications.length != 0) {
-
+                    notifications = pgConnection.getNotifications();
                     TableController.getCurrentTable().loadCollection();
                     ServerController.getNotifier().notifyMe();
                 }

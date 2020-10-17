@@ -45,7 +45,7 @@ public class ServerController {
                     getClientList().add((InetSocketAddress) clientAddr);
                 }
                 getClientList().forEach(System.out::println);
-//                notifier.notifyMe();
+                notifier.notifyMe();
             }
 
             if(checkRequest(buf) && clientAddr != null){

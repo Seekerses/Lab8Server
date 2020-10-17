@@ -48,12 +48,13 @@ public class CommandUpdate implements Command, Preparable{
                 prepare(args);
             } else {
                 try {
-                    if (args == null || args[0] == null) {
+
+                    if ((args == null || args[0] == null)  && product.getId() == null) {
                         return ("Please enter ID");
                     }
                     int counter = 0;
                     Iterator<Map.Entry<String, Product>> it = TableController.getCurrentTable().getSet().iterator();
-                    int i = Integer.parseInt(args[0]);
+                    int i = Integer.parseInt(args == null ? product.getId().toString() : args[0]);
                     while (it.hasNext()) {
                         Map.Entry<String, Product> map = it.next();
                         if (map.getValue().getId() == i) {

@@ -9,7 +9,10 @@ import java.net.StandardProtocolFamily;
 import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 
 public class ClientNotificator implements Runnable{
 
@@ -32,11 +35,14 @@ public class ClientNotificator implements Runnable{
         while(true){
             if(notified){
                 try {
-                    for (InetSocketAddress client : ServerController.getClientList()) {
-                        try {
-                            sendUpdate(client);
-                        } catch (IOException | InterruptedException e) {
-                            System.out.println("Client is broke.");
+                    synchronized (ServerController.getClientList()) {
+                        ArrayList<InetSocketAddress> temp = (ArrayList<InetSocketAddress>) ServerController.getClientList().clone();
+                        for (InetSocketAddress client : temp) {
+                            try {
+                                sendUpdate(client);
+                            } catch (IOException | InterruptedException e) {
+                                System.out.println("Client is broke.");
+                            }
                         }
                     }
                 }finally {
@@ -63,7 +69,7 @@ public class ClientNotificator implements Runnable{
         update[0] = 22;
         ByteBuffer toClient  = ByteBuffer.wrap(update);
         channel.send(toClient,clientAddr);
-        Sender sender = new Sender(updatedTable, channel);
+        Sender sender = new Sender(updatedTable, channel,true);
         Thread sendThread = new Thread(sender);
         sendThread.start();
         sendThread.join();

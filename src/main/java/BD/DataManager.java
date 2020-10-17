@@ -334,7 +334,7 @@ public class DataManager {
                     orgId = rst.getInt(1);
                 }
 
-                if(product.getManufacturer().getPostalAddress()!=null) {
+                if(product.getManufacturer().getPostalAddress()!= null) {
                     insertLocationStatement.setLong(1, orgId);
                     insertLocationStatement.setString(2, product.getManufacturer().getPostalAddress().getStreet());
                     if (insertLocationStatement.executeUpdate() == 0) throw new SQLException();

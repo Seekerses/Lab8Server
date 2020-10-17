@@ -46,6 +46,7 @@ public class CommandAdd implements Command, Preparable, Serializable {
             DataHandler handler = DataHandler.getInstance();
             DataUserManager userManager = new DataUserManager(handler);
             DataManager manager = new DataManager(handler, userManager);
+            System.out.println(product.toString());
             if(userManager.checkUserByUsernameAndPassword(user)) {
                 try {
                     product.setOwner(user);
