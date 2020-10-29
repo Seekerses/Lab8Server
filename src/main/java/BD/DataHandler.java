@@ -40,7 +40,7 @@ public class DataHandler {
 
     private String url = "jdbc:postgresql://localhost:5432/postgres";
     private String user = "postgres";
-    private String password = "unravel";
+    private String password = "835807643";
     private Connection connection;
     private static volatile DataHandler instance;
 
@@ -50,14 +50,22 @@ public class DataHandler {
 
     public static DataHandler getInstance() {
         DataHandler localInstance = instance;
+
         if (localInstance == null) {
             synchronized (DataHandler.class) {
                 localInstance = instance;
                 if (localInstance == null) {
                     instance = localInstance = new DataHandler();
+                    try {
+                        new Thread(ChangeObserver.getInstance(instance.connection)).start();
+                    } catch (SQLException e) {
+                        System.out.println("Troubles with BD");
+                    }
                 }
             }
         }
+        else localInstance.connectToDataBase();
+
         return localInstance;
     }
 
@@ -69,7 +77,6 @@ public class DataHandler {
             createTableProducts();
             createTableOrganisations();
             createTableLocations();
-            new Thread(new ChangeObserver(connection)).start();
         } catch (SQLException | ClassNotFoundException exception) {
             System.out.println(exception);
         }

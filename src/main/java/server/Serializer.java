@@ -16,7 +16,6 @@ class Serializer {
             objectOutputStream.flush();
             buff = baos.toByteArray();
             objectOutputStream.close();
-            baos.close();
             return buff;
 
         }

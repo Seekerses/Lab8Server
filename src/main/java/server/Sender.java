@@ -13,13 +13,15 @@ class Sender implements Runnable{
 
     private Reply reply;
     private DatagramChannel channel;
+    private boolean[] args;
 
-    Sender(Reply reply, DatagramChannel channel){
+    Sender(Reply reply, DatagramChannel channel, boolean... args){
         this.reply = reply;
         this.channel = channel;
+        this.args = args;
     }
 
-        private void send(byte[] data){
+        private void send(byte[] data ){
 
             byte[] done = new byte[1024]; //std buffer for exchanging done reply
             done[0] = 33;
@@ -31,7 +33,7 @@ class Sender implements Runnable{
                 ByteBuffer buffer = ByteBuffer.allocate(1024);
                 ByteBuffer handle = ByteBuffer.allocate(1024);
                 boolean last = false;
-
+                int i = 0;
                 while(!last) {
 
                     buffer.clear();
@@ -44,6 +46,9 @@ class Sender implements Runnable{
                     }
 
                     buffer.flip();
+                    if (args != null){
+                        i++;
+                    }
                     channel.send(buffer,channel.getRemoteAddress());
                     handle = PacketUtils.getResponse(channel);
                     if ( handle.array()[0] == 111 ){
@@ -70,7 +75,7 @@ class Sender implements Runnable{
                 ServerController.getClientList().remove(reply.getAddress());
                 ServerController.getClientList().remove(new InetSocketAddress(reply.getAddress().getAddress().toString(),
                         reply.getAddress().getPort()-1));
-            }
+           }
             catch (IOException | InterruptedException e){
                 e.printStackTrace();
                 System.out.println("Oh, no. IO errors while sending reply!");
