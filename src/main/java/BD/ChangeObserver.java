@@ -14,14 +14,28 @@ public class ChangeObserver implements Runnable {
 
     private Connection connection;
     private PGConnection pgConnection;
+    private static volatile ChangeObserver instance;
 
-    public ChangeObserver(Connection connection) throws SQLException {
+    private ChangeObserver(Connection connection) throws SQLException {
         this.connection = connection;
         this.pgConnection = (PGConnection) (this.connection);
         Statement listenSubscribe = this.connection.createStatement();
         listenSubscribe.execute("LISTEN listener");
         listenSubscribe.close();
         createListenerTrigger();
+    }
+
+    public static ChangeObserver getInstance(Connection connection) throws SQLException {
+        ChangeObserver localInstance = instance;
+        if (localInstance == null) {
+            synchronized (ChangeObserver.class) {
+                localInstance = instance;
+                if (localInstance == null) {
+                    instance = localInstance = new ChangeObserver(connection);
+                }
+            }
+        }
+        return localInstance;
     }
 
     @Override

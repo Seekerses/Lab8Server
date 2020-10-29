@@ -68,10 +68,17 @@ public class ClientNotificator implements Runnable{
         byte[] update = new byte[1024];
         update[0] = 22;
         ByteBuffer toClient  = ByteBuffer.wrap(update);
-        channel.send(toClient,clientAddr);
-        Sender sender = new Sender(updatedTable, channel,true);
-        Thread sendThread = new Thread(sender);
-        sendThread.start();
-        sendThread.join();
+        try {
+            channel.send(toClient, clientAddr);
+            Sender sender = new Sender(updatedTable, channel, true);
+            Thread sendThread = new Thread(sender);
+            sendThread.start();
+            sendThread.join();
+        }
+        catch (Exception e){
+            System.out.println("Some troubles with updater... Restarting updater");
+            channel.close();
+            run();
+        }
     }
 }
