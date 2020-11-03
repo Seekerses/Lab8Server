@@ -50,9 +50,9 @@ public class Commandremove_lower implements Command{
                     }
                 }
                 TableController.getCurrentTable().loadCollection();
-                return ("Elements with lower ID has been removed");
+                return ("LowerIDRemoved");
             } catch (NumberFormatException e) {
-                return ("Argument must be a number!");
+                return ("ArgIsNumber");
             }
         }
         return null;

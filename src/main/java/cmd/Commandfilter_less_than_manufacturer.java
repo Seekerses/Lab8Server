@@ -38,11 +38,11 @@ public class Commandfilter_less_than_manufacturer implements Command {
                     .forEach(x -> showInfo.addInfo(x.toString()));
 
             if (showInfo.getInfo().equals("")) {
-                return ("No such elements.");
+                return ("NoSuchElements");
             }
             return showInfo.getInfo();
         }catch(NumberFormatException e){
-            return ("Argument must be a number!");
+            return ("ArgIsNumber");
         }
     }
 

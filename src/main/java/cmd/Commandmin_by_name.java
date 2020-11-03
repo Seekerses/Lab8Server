@@ -19,10 +19,10 @@ public class Commandmin_by_name implements Command {
     public String execute(String[] args) {
         try {
             if (args.length == 1) {
-                return("There is no args for this command!");
+                return("ZeroArgs");
             }
         }catch (NullPointerException e) {
-            String min = "Empty table";
+            String min = "EmptyTable";
             try {
                 min = TableController.getCurrentTable().getProducts().stream()
                         .sorted(Comparator.comparing(Product::getName))

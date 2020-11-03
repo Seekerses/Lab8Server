@@ -15,7 +15,7 @@ public class CommandDisconnect implements Command{
     public String execute(String[] args) {
         try {
             if (args.length == 1) {
-                System.out.println("There is no args for this command!");
+                return ("ZeroArgs");
             }
         }catch (NullPointerException e) {
             return "disconnect";

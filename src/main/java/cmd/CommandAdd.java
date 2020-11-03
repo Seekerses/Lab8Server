@@ -51,13 +51,13 @@ public class CommandAdd implements Command, Preparable, Serializable {
                 try {
                     product.setOwner(user);
                     manager.insertProduct(product, key, user);
-                    return ("Insertion complete...");
+                    return ("InsertionComplete");
                 } catch (SQLException e) {
                     e.printStackTrace();
-                    return "Wrong input";
+                    return "WrongInput";
                 }
             }else{
-                return "You don't have rights to do it";
+                return "NoRights";
             }
         }
         return null;

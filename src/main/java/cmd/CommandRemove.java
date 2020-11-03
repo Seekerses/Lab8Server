@@ -26,6 +26,9 @@ public class CommandRemove implements Command {
         DataHandler handler = DataHandler.getInstance();
         DataUserManager userManager = new DataUserManager(handler);
         DataManager manager = new DataManager(handler, userManager);
+        if(args.length == 0){
+            return "ErrorNullKey";
+        }
         if(userManager.checkUserByUsernameAndPassword(user)) {
             int count = 0;
             for (String key : TableController.getCurrentTable().getKey()) {
@@ -38,13 +41,13 @@ public class CommandRemove implements Command {
             } else {
                 if(manager.checkForRoots(TableController.getCurrentTable().get(args[0]).getId(), user)) {
                     manager.deleteProductById(TableController.getCurrentTable().get(args[0]).getId());
-                    return ("Element has been removed.");
+                    return ("ElementRemoved");
                 }else{
-                    return "You have no rights to do it";
+                    return "NoRights";
                 }
             }
         }else{
-            return "No rights to do it(";
+            return "NoRights";
         }
     }
 

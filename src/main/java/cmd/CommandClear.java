@@ -20,11 +20,11 @@ public class CommandClear implements Command {
     public String execute(String[] args) {
         try {
             if (args.length == 1) {
-                return ("There is no args for this command!");
+                return ("ZeroArgs");
             }
         }catch (NullPointerException e) {
             if (TableController.getCurrentTable().getSize() == 0) {
-                return ("Collection is already empty.");
+                return ("EmptyCollection");
             } else {
                 User user = new User();
                 user.setPassword(password);
@@ -34,9 +34,9 @@ public class CommandClear implements Command {
                 DataManager manager = new DataManager(handler,userManager);
                 if(userManager.checkUserByUsernameAndPassword(user)) {
                     manager.deleteProductByUser(user);
-                    return ("Your Collection has been cleared.");
+                    return ("CollectionCleared");
                 }else{
-                    return "You don't have rights to do it";
+                    return "NoRights";
                 }
             }
         }
