@@ -29,11 +29,11 @@ public class CommandShow implements Command {
     public String execute(String[] args) {
         try {
             if (args.length == 1) {
-                return ("There is no args for this command!");
+                return ("ZeroArgs");
             }
         }catch (NullPointerException e) {
             if (TableController.getCurrentTable().getSize() == 0) {
-                return ("Collection is empty!");
+                return ("ShowEmptyCollection");
             } else {
                 ShowInfo showInfo = new ShowInfo();
                 TableController.getCurrentTable().getProducts().stream().sorted(new PlaceComparator()).forEach(y -> showInfo.addInfo(y.toString()));

@@ -18,7 +18,7 @@ public class CommandInfo implements Command {
     public String execute(String[] args) {
         try {
             if (args.length == 1) {
-                return ("There is no args for this command!");
+                return ("ZeroArgs");
             }
         }catch (NullPointerException e) {
             return ("Size of collection: " + (long) TableController.getCurrentTable().getProducts().size() + "\n"

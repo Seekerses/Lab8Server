@@ -16,7 +16,7 @@ public class CommandHelp implements Command {
     public String execute(String[] args){
         try {
             if (args.length == 1) {
-                return ("There is no args for this command!");
+                return ("ZeroArgs");
             }
         }catch (NullPointerException e){
             return ("help: display help for available commands \n " +

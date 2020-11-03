@@ -58,18 +58,18 @@ public class Commandreplace_if_greater implements Command,Preparable{
                                     manager.deleteProductById(map.getValue().getId());
                                     manager.insertProduct(map.getValue().getId(), product, key, user);
                                 }else{
-                                    return "No rights to change other's product";
+                                    return "NoRights";
                                 }
                             }
                         }
                     }
-                    return ("Element has been replaced");
+                    return ("ElementReplaced");
                 }
             } catch (NumberFormatException | SQLException e) {
-                return ("Argument must be a number");
+                return ("ArgIsNumber");
             }
         }
-        return "Element has been replaced";
+        return "ElementReplaced";
     }
     @Override
     public void prepare(String[] args) {
